@@ -9,11 +9,17 @@ function areInputsDifferent<TInput extends any[]>(input1: TInput, input2: TInput
 	return zippedInputs.some(([value1, value2]) => value1 !== value2);
 }
 
-export function useHasInputChanged<TInput extends any[]>(newInput: TInput) {
-	const inputRef = useRef<TInput | undefined>(newInput);
-	const shouldCompute = inputRef.current === undefined || areInputsDifferent(inputRef.current, newInput);
+/**
+ * Determines if the any of the values in the `input` have changed between re renders.
+ * @param input The array of values to check.
+ * @returns True if any of the values have been changed between re renders, otherwise false.
+ * @internal
+ */
+export function useHasInputChanged<TInput extends any[]>(input: TInput): boolean {
+	const inputRef = useRef<TInput | undefined>(input);
+	const shouldCompute = inputRef.current === undefined || areInputsDifferent(inputRef.current, input);
 	if (shouldCompute) {
-		inputRef.current = newInput;
+		inputRef.current = input;
 	}
 	return shouldCompute;
 }

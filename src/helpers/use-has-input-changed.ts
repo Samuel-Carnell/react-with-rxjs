@@ -16,8 +16,8 @@ function areInputsDifferent<TInput extends any[]>(input1: TInput, input2: TInput
  * @internal
  */
 export function useHasInputChanged<TInput extends any[]>(input: TInput): boolean {
-	const inputRef = useRef<TInput | undefined>(input);
-	const shouldCompute = inputRef.current === undefined || areInputsDifferent(inputRef.current, input);
+	const inputRef = useRef<TInput>(input);
+	const shouldCompute = areInputsDifferent(inputRef.current, input);
 	if (shouldCompute) {
 		inputRef.current = input;
 	}

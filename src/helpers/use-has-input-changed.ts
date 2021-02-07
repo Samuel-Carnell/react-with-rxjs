@@ -6,7 +6,8 @@ function areInputsDifferent<TInput extends any[]>(input1: TInput, input2: TInput
 		input2[index],
 	]);
 
-	return zippedInputs.some(([value1, value2]) => value1 !== value2);
+	// Using Object.is to stay consistent with how other hooks such as useMemo and useEffect compare dependencies
+	return zippedInputs.some(([value1, value2]) => !Object.is(value1, value2));
 }
 
 /**

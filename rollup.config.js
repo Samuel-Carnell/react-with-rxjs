@@ -10,50 +10,50 @@ import { resolve } from 'path';
 const peerDependencies = pkg.config.lib.peerDependencies;
 
 export default [
-  {
-    input: 'src/index.tsx',
-    external: ['react'],
-    plugins: [
-      del({ targets: 'dist/*' }),
-      typescript({
-        typescript: require('typescript'),
-      }),
-      postcss({
-        modules: true,
-        plugins: [],
-        extract: resolve(`dist/${pkg.name}.css`),
-      }),
-      copy({
-        targets: [
-          { src: 'README.md', dest: 'dist' },
-          { src: 'CHANGELOG.md', dest: 'dist' },
-        ],
-      }),
-      generatePackageJson({
-        baseContents: (pkg) => ({
-          ...pkg,
-          name: pkg.name,
-          scripts: undefined,
-          dependencies: {},
-          devDependencies: {},
-          peerDependencies,
-          private: true,
-          config: undefined,
-        }),
-      }),
-      terser(),
-    ],
-    output: [
-      {
-        name: pkg.name,
-        file: `dist/${pkg.main}`,
-        format: 'umd',
-        globals: {
-          react: 'react',
-        },
-        sourcemap: true,
-      },
-      { file: `dist/${pkg.module}`, format: 'es', sourcemap: true },
-    ],
-  },
+	{
+		input: 'src/index.tsx',
+		external: ['react'],
+		plugins: [
+			del({ targets: 'dist/*' }),
+			typescript({
+				typescript: require('typescript'),
+			}),
+			postcss({
+				modules: true,
+				plugins: [],
+				extract: resolve(`dist/${pkg.name}.css`),
+			}),
+			copy({
+				targets: [
+					{ src: 'README.md', dest: 'dist' },
+					{ src: 'CHANGELOG.md', dest: 'dist' },
+				],
+			}),
+			generatePackageJson({
+				baseContents: (pkg) => ({
+					...pkg,
+					name: pkg.name,
+					scripts: undefined,
+					dependencies: {},
+					devDependencies: {},
+					peerDependencies,
+					private: true,
+					config: undefined,
+				}),
+			}),
+			terser(),
+		],
+		output: [
+			{
+				name: pkg.name,
+				file: `dist/${pkg.main}`,
+				format: 'umd',
+				globals: {
+					react: 'react',
+				},
+				sourcemap: true,
+			},
+			{ file: `dist/${pkg.module}`, format: 'es', sourcemap: true },
+		],
+	},
 ];

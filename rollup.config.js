@@ -11,7 +11,7 @@ const peerDependencies = pkg.config.lib.peerDependencies;
 
 export default [
 	{
-		input: 'src/index.tsx',
+		input: 'src/index.ts',
 		external: ['react'],
 		plugins: [
 			del({ targets: 'dist/*' }),

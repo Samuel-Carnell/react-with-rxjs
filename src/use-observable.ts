@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Observable } from 'rxjs';
+import { isObservable, Observable } from 'rxjs';
 import { useHasInputChanged } from './helpers/use-has-input-changed';
 
 /**
@@ -13,10 +13,22 @@ export function useObservable<TObservable extends Observable<any>>(
 	observableFactory: () => TObservable,
 	dependencies: unknown[] = []
 ): TObservable {
+	if (!Array.isArray(dependencies)) {
+		throw new TypeError(`${dependencies} is an Array. For argument input in useObservable`);
+	}
+
 	const observableRef = useRef<TObservable | undefined>(undefined);
 	const hasDependenciesChanged = useHasInputChanged(dependencies);
 	if (observableRef.current === undefined || hasDependenciesChanged) {
-		observableRef.current === observableFactory();
+		const observable = observableFactory();
+
+		if (!isObservable(observable)) {
+			throw new TypeError(
+				`${observable} is not an Observable. For return value of argument observableFactory in useObservable`
+			);
+		}
+		observableRef.current = observable;
 	}
+
 	return observableRef.current as TObservable;
 }

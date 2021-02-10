@@ -1,5 +1,16 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Renderer, renderHook, RenderHookResult } from '@testing-library/react-hooks';
 import { useHasInputChanged } from './use-has-input-changed';
+
+type useHasInputChangedParams = Parameters<typeof useHasInputChanged>;
+type useHasInputChangedReturn = ReturnType<typeof useHasInputChanged>;
+
+function renderUseHasInputChangedHook(
+	initialParams: useHasInputChangedParams
+): RenderHookResult<useHasInputChangedParams, useHasInputChangedReturn, Renderer<useHasInputChangedParams>> {
+	return renderHook((params: useHasInputChangedParams) => useHasInputChanged(...params), {
+		initialProps: initialParams,
+	});
+}
 
 describe('useHasInputChanged', () => {
 	it.each`
@@ -10,9 +21,7 @@ describe('useHasInputChanged', () => {
 		${[true, 1, {}, []]}
 		${[null]}
 	`('returns false when called with $input', ({ input }) => {
-		const { result } = renderHook(useHasInputChanged, {
-			initialProps: input,
-		});
+		const { result } = renderUseHasInputChangedHook([input]);
 		expect(result.current).toBe(false);
 	});
 
@@ -34,10 +43,8 @@ describe('useHasInputChanged', () => {
 	`(
 		'returns $expected when called with $firstInput, then re-rendered with $secondInput',
 		({ firstInput, secondInput, expected }) => {
-			const { result, rerender } = renderHook(useHasInputChanged, {
-				initialProps: firstInput,
-			});
-			rerender(secondInput);
+			const { result, rerender } = renderUseHasInputChangedHook([firstInput]);
+			rerender([secondInput]);
 			expect(result.current).toBe(expected);
 		}
 	);
@@ -53,11 +60,9 @@ describe('useHasInputChanged', () => {
 	`(
 		'returns $expected when called with $firstInput, then re-rendered with $secondInput, then re-render with $thirdInput',
 		({ firstInput, secondInput, thirdInput, expected }) => {
-			const { result, rerender } = renderHook(useHasInputChanged, {
-				initialProps: firstInput,
-			});
-			rerender(secondInput);
-			rerender(thirdInput);
+			const { result, rerender } = renderUseHasInputChangedHook([firstInput]);
+			rerender([secondInput]);
+			rerender([thirdInput]);
 			expect(result.current).toBe(expected);
 		}
 	);
@@ -73,7 +78,7 @@ describe('useHasInputChanged', () => {
 		${BigInt(1)}
 		${function* generator() {}}
 	`('throws a type when called with $input', ({ input }) => {
-		const { result } = renderHook(useHasInputChanged, { initialProps: input });
+		const { result } = renderUseHasInputChangedHook([input]);
 		expect(result.error).toBeInstanceOf(TypeError);
 	});
 });

@@ -8,7 +8,7 @@
   "typings": "index.d.ts",
   "scripts": {
     "build": "rollup -c",
-    "lint": "eslint './{src,app}/**/*.{ts,tsx}'",
+    "lint": "eslint \"./{src,app}/**/!(*.test|*.spec).{ts,tsx,js,jsx}\"",
     "test": "jest --coverage",
     "test:watch": "jest --watchAll",
     "size": "size-limit"

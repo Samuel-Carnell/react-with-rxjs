@@ -18,7 +18,7 @@ function areInputsDifferent<TInput extends any[]>(input1: TInput, input2: TInput
  */
 export function useHasInputChanged<TInput extends any[]>(input: TInput): boolean {
 	if (!Array.isArray(input)) {
-		throw new TypeError(`${input} is not of type Array. For argument input in useHasInputChanged`);
+		throw new TypeError(`${input} is not an Array. For argument input in useHasInputChanged`);
 	}
 
 	const inputRef = useRef<TInput>(input);

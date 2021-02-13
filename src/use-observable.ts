@@ -1,6 +1,5 @@
-import { useRef } from 'react';
 import { isObservable, Observable } from 'rxjs';
-import { useHasInputChanged } from './helpers/use-has-input-changed';
+import { useFactoryFunction } from './helpers/use-factory-function';
 
 /**
  * Uses the provided `observableFactory` to compute the returned observable. This observable persists across renders, only being recomputed if any of the dependencies change.
@@ -14,21 +13,15 @@ export function useObservable<TObservable extends Observable<any>>(
 	dependencies: unknown[] = []
 ): TObservable {
 	if (!Array.isArray(dependencies)) {
-		throw new TypeError(`${dependencies} is an Array. For argument input in useObservable`);
+		throw new TypeError(`${dependencies} is not an Array. For argument input in useObservable`);
+	}
+	const observable = useFactoryFunction(observableFactory, dependencies);
+
+	if (!isObservable(observable)) {
+		throw new TypeError(
+			`${observable} is not an Observable. For return value of argument observableFactory in useObservable`
+		);
 	}
 
-	const observableRef = useRef<TObservable | undefined>(undefined);
-	const hasDependenciesChanged = useHasInputChanged(dependencies);
-	if (observableRef.current === undefined || hasDependenciesChanged) {
-		const observable = observableFactory();
-
-		if (!isObservable(observable)) {
-			throw new TypeError(
-				`${observable} is not an Observable. For return value of argument observableFactory in useObservable`
-			);
-		}
-		observableRef.current = observable;
-	}
-
-	return observableRef.current as TObservable;
+	return observable;
 }

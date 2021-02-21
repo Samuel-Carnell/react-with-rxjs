@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Observable } from 'rxjs';
+import { isObservable, Observable } from 'rxjs';
 import { useSubscription } from './helpers/use-subscription';
 
 /**
@@ -15,6 +15,12 @@ import { useSubscription } from './helpers/use-subscription';
 export function useObservableState<TValue, TError = any>(
 	observable: Observable<TValue>
 ): [TValue | undefined, TError | undefined, boolean] {
+	if (!isObservable(observable)) {
+		throw new TypeError(
+			`${observable} is not an Observable. For return value of argument observable in useObservableState`
+		);
+	}
+
 	const [value, setValue] = useState<TValue | undefined>(undefined);
 	const [error, setError] = useState<TError | undefined>(undefined);
 	const [isComplete, setIsComplete] = useState<boolean>(false);

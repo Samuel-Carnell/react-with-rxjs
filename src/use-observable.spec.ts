@@ -83,6 +83,9 @@ describe('useObservable', () => {
 		${[[]]}               | ${[[]]}               | ${[[]]}               | ${3}
 		${[100]}              | ${[100]}              | ${[100]}              | ${1}
 		${[() => {}]}         | ${[() => {}]}         | ${[() => {}]}         | ${3}
+		${[new Date()]}       | ${[new Date()]}       | ${[new Date()]}       | ${3}
+		${[]}                 | ${[null]}             | ${[null, null]}       | ${3}
+		${[false]}            | ${[false]}            | ${[true]}             | ${2}
 	`(
 		'calls the observableFactory callback $expectedNumberOfTimesCalled times when called with $firstDependencies dependencies, then $secondDependencies dependencies, then $thirdDependencies dependencies',
 		({ firstDependencies, secondDependencies, thirdDependencies, expectedNumberOfTimesCalled }) => {

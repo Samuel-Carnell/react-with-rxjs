@@ -21,7 +21,7 @@ function isSubscriptionLike(value: unknown): value is SubscriptionLike {
  * will be asynchronously disposed of.
  * @typeParam TSubscription The type of value produced by the `subscriptionFactory`.
  * @param subscriptionFactory Function to use to re/compute the returned subscription.
- * @param dependencies Optional. A list of dependencies used by the `subscriptionFactory` function.
+ * @param dependencies A list of dependencies used by the `subscriptionFactory` function.
  * @returns The subscription produced by the `subscriptionFactory`.
  */
 export function useSubscription<TSubscription extends SubscriptionLike>(

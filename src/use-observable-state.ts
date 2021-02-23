@@ -14,26 +14,37 @@ import { useSubscription } from './helpers/use-subscription';
  */
 export function useObservableState<TValue, TError = any>(
 	observable: Observable<TValue>
-): [TValue | undefined, TError | undefined, boolean] {
+): [TValue | undefined, TError | undefined, boolean];
+
+export function useObservableState<TValue, TError = any>(
+	observable: Observable<TValue>,
+	initialValue: TValue
+): [TValue, TError | undefined, boolean];
+
+export function useObservableState(
+	observable: Observable<unknown>,
+	initialValue?: unknown
+): [unknown, unknown, boolean] {
 	if (!isObservable(observable)) {
 		throw new TypeError(
 			`${observable} is not an Observable. For return value of argument observable in useObservableState`
 		);
 	}
 
-	const [value, setValue] = useState<TValue | undefined>(undefined);
-	const [error, setError] = useState<TError | undefined>(undefined);
+	const [value, setValue] = useState<unknown>(initialValue);
+	const [error, setError] = useState<unknown>(undefined);
 	const [isComplete, setIsComplete] = useState<boolean>(false);
 
 	useSubscription(() => {
 		return observable.subscribe({
-			next(value: TValue) {
+			next(value: unknown): void {
+				console.log(value);
 				setValue(value);
 			},
-			error(error: any) {
-				setError(error as TError);
+			error(error: unknown): void {
+				setError(error);
 			},
-			complete() {
+			complete(): void {
 				setIsComplete(true);
 			},
 		});

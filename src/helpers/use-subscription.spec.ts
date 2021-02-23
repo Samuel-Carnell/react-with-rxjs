@@ -15,19 +15,6 @@ function renderUseSubscriptionHook(
 
 describe('useSubscription', () => {
 	it.each`
-		subscription
-		${new Subscription()}
-		${new Subject()}
-		${new AsyncSubject()}
-		${new BehaviorSubject('a')}
-		${new Subscriber()}
-	`('returns the $subscription produced by the subscriptionFactory callback', ({ subscription }) => {
-		const mockSubscriptionFactory = jest.fn().mockReturnValue(subscription);
-		const { result } = renderUseSubscriptionHook([mockSubscriptionFactory, []]);
-		expect(result.current).toBe(subscription);
-	});
-
-	it.each`
 		dependencies
 		${[]}
 		${[new Observable()]}

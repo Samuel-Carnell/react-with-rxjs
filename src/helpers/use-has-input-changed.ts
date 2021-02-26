@@ -1,10 +1,10 @@
 import { useRef } from 'react';
 
 function areInputsDifferent<TInput extends any[]>(input1: TInput, input2: TInput) {
-	const zippedInputs: Array<[any, any]> = Array.from(Array(Math.max(input1.length, input2.length)), (_, index) => [
-		input1[index],
-		input2[index],
-	]);
+	const zippedInputs: Array<[any, any]> = Array.from(
+		Array(Math.max(input1.length, input2.length)),
+		(_, index) => [input1[index], input2[index]]
+	);
 
 	// Using Object.is to stay consistent with how other hooks such as useMemo and useEffect compare dependencies
 	return zippedInputs.some(([value1, value2]) => !Object.is(value1, value2));

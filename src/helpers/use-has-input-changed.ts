@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 function areInputsDifferent<TInput extends any[]>(input1: TInput, input2: TInput) {
 	const zippedInputs: Array<[any, any]> = Array.from(

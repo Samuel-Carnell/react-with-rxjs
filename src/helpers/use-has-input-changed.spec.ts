@@ -66,19 +66,4 @@ describe('useHasInputChanged', () => {
 			expect(result.current).toBe(expected);
 		}
 	);
-
-	it.each`
-		input
-		${''}
-		${false}
-		${Number.NaN}
-		${{}}
-		${1}
-		${Symbol()}
-		${BigInt(1)}
-		${function* generator() {}}
-	`('throws a type when called with $input', ({ input }) => {
-		const { result } = renderUseHasInputChangedHook([input]);
-		expect(result.error).toBeInstanceOf(TypeError);
-	});
 });

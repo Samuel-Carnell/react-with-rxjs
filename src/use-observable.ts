@@ -2,7 +2,8 @@ import { isObservable, Observable } from 'rxjs';
 import { useFactory } from './helpers/use-factory';
 
 /**
- * Uses the provided `observableFactory` to compute the returned observable. This observable persists across renders, only being recomputed if any of the dependencies change.
+ * Uses the provided `observableFactory` to compute the returned observable. This observable persists across renders,
+ * only being recomputed if any of the dependencies change. This function is concurrent mode safe.
  * @typeParam TObservable The type of observable produced by the `observableFactory`.
  * @param observableFactory Function to use to re/compute the returned observable.
  * @param dependencies Optional. A list of dependencies used by the `observableFactory` function.

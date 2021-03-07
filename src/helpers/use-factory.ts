@@ -9,9 +9,13 @@ import { useHasInputChanged } from './use-has-input-changed';
  * @param dependencies A list of dependencies used by the `factory` function.
  * @returns The value produced by the `factory`.
  */
-export function useFactory<TValue>(factory: () => TValue, dependencies: unknown[]): TValue {
+export function useFactory<TValue>(
+	factory: () => TValue,
+	dependencies: unknown[],
+	rootHookName?: string
+): TValue {
 	const valueRef = useRef<TValue | undefined>(undefined);
-	const hasDependenciesChanged = useHasInputChanged(dependencies);
+	const hasDependenciesChanged = useHasInputChanged(dependencies, rootHookName);
 	const currentValue =
 		valueRef.current === undefined || hasDependenciesChanged ? factory() : valueRef.current;
 

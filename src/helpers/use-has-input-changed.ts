@@ -7,7 +7,7 @@ function areInputsDifferent<TInput extends any[]>(
 	nextInputs: TInput,
 	rootHookName?: string
 ) {
-	if (IS_DEV && nextInputs.length !== prevInputs.length) {
+	if (IS_DEV && rootHookName !== undefined && nextInputs.length !== prevInputs.length) {
 		console.error(
 			'The final argument passed to %s changed size between renders. The ' +
 				'order and size of this array must remain constant.\n\n' +

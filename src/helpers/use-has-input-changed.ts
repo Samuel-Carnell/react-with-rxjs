@@ -21,10 +21,10 @@ function areInputsDifferent<TInput extends any[]>(
 
 	for (let i = 0; i < prevInputs.length && i < nextInputs.length; i++) {
 		if (!Object.is(prevInputs[i], nextInputs[i])) {
-			return false;
+			return true;
 		}
 	}
-	return true;
+	return false;
 }
 
 /**

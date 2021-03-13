@@ -53,7 +53,7 @@ export function useObservableState(
 	const [error, setError] = useState<unknown>(undefined);
 	const [isComplete, setIsComplete] = useState<boolean>(false);
 
-	const observableChanged = useHasInputChanged([observable]);
+	const observableChanged = useHasInputChanged([observable], 'useObservableState');
 	useLayoutEffect(() => {
 		if (observableChanged) {
 			setIsComplete(false);

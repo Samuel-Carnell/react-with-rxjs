@@ -2,13 +2,19 @@ import { useEffect, useRef } from 'react';
 
 export const IS_DEV = process?.env?.NODE_ENV === 'development';
 
+function logError(message: string, ...args: unknown[]) {
+	if (IS_DEV) {
+		console.error(message, args);
+	}
+}
+
 function areInputsDifferent<TInput extends any[]>(
 	prevInputs: TInput,
 	nextInputs: TInput,
-	rootHookName?: string
+	rootHookName: string
 ) {
-	if (IS_DEV && rootHookName !== undefined && nextInputs.length !== prevInputs.length) {
-		console.error(
+	if (nextInputs.length !== prevInputs.length) {
+		logError(
 			'The final argument passed to %s changed size between renders. The ' +
 				'order and size of this array must remain constant.\n\n' +
 				'Previous: %s\n' +
@@ -36,7 +42,7 @@ function areInputsDifferent<TInput extends any[]>(
  */
 export function useHasInputChanged<TInput extends any[]>(
 	input: TInput,
-	rootHookName?: string
+	rootHookName = 'useHasInputChanged'
 ): boolean {
 	const inputRef = useRef<TInput>(input);
 	const isInputDifferent = areInputsDifferent(inputRef.current, input, rootHookName);

@@ -38,7 +38,7 @@ describe('useHasInputChanged', () => {
 		${[[]]}                 | ${[[]]}             | ${true}
 		${[1]}                  | ${[1, 2]}           | ${false}
 		${[true]}               | ${[true]}           | ${false}
-		${['test']}             | ${[]}               | ${true}
+		${['test']}             | ${[]}               | ${false}
 		${[null]}               | ${[undefined]}      | ${true}
 		${[parseInt('blabla')]} | ${[Number.NaN]}     | ${false}
 		${[Symbol('test')]}     | ${[Symbol('test')]} | ${true}
@@ -59,7 +59,7 @@ describe('useHasInputChanged', () => {
 		${[1, 2, '']}         | ${[1, 3, '']}   | ${[1, 2, '']}         | ${true}
 		${[1]}                | ${[1, 2]}       | ${[1, 2]}             | ${false}
 		${[true]}             | ${[{}]}         | ${[1]}                | ${true}
-		${['test']}           | ${[]}           | ${['test']}           | ${true}
+		${['test']}           | ${[]}           | ${['test']}           | ${false}
 		${[parseInt('asdf')]} | ${[Number.NaN]} | ${[parseInt('asdf')]} | ${false}
 	`(
 		'returns $expected when called with $firstInput, then re-rendered with $secondInput, then re-render with $thirdInput',

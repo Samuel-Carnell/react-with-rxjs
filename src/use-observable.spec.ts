@@ -75,9 +75,9 @@ describe('useObservable', () => {
 		firstDependencies     | secondDependencies    | thirdDependencies     | expectedNumberOfTimesCalled
 		${['test']}           | ${['test']}           | ${['test']}           | ${1}
 		${[1, 2, '']}         | ${[1, 3, '']}         | ${[1, 2, '']}         | ${3}
-		${[1]}                | ${[1, 2]}             | ${[1, 2]}             | ${2}
+		${[1]}                | ${[1, 2]}             | ${[1, 2]}             | ${1}
 		${[true]}             | ${[{}]}               | ${[1]}                | ${3}
-		${['test']}           | ${['test']}           | ${[]}                 | ${2}
+		${['test']}           | ${['test']}           | ${[]}                 | ${1}
 		${[parseInt('asdf')]} | ${[Number.NaN]}       | ${[parseInt('asdf')]} | ${1}
 		${[new Observable()]} | ${[new Observable()]} | ${[new Observable()]} | ${3}
 		${[[]]}               | ${[[]]}               | ${[[]]}               | ${3}

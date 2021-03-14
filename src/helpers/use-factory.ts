@@ -7,11 +7,16 @@ import { useHasInputChanged } from './use-has-input-changed';
  * @typeParam TValue The type of value produced by the `factory`.
  * @param factory Function to use to re/compute the returned observable.
  * @param dependencies A list of dependencies used by the `factory` function.
+ * @param rootHookName Optional. The name of the caller hook to use when logging errors. Defaults to `'useFactory'`
  * @returns The value produced by the `factory`.
  */
-export function useFactory<TValue>(factory: () => TValue, dependencies: unknown[]): TValue {
+export function useFactory<TValue>(
+	factory: () => TValue,
+	dependencies: unknown[],
+	rootHookName = 'useFactory'
+): TValue {
 	const valueRef = useRef<TValue | undefined>(undefined);
-	const hasDependenciesChanged = useHasInputChanged(dependencies);
+	const hasDependenciesChanged = useHasInputChanged(dependencies, rootHookName);
 	const currentValue =
 		valueRef.current === undefined || hasDependenciesChanged ? factory() : valueRef.current;
 

@@ -1,7 +1,9 @@
-import { useCallback } from 'react';
-import { BehaviorSubject, Observable, pipe, ReplaySubject, Subject, UnaryFunction } from 'rxjs';
-import { distinctUntilChanged, scan } from 'rxjs/operators';
+import { useCallback, useLayoutEffect } from 'react';
+import { BehaviorSubject, Observable, pipe, Subject, UnaryFunction } from 'rxjs';
+import { distinctUntilChanged, filter, scan } from 'rxjs/operators';
 import { useFactory } from './helpers/use-factory';
+
+const NO_EMIT = Symbol();
 
 type ValueOrFactory<TValue> = (() => TValue) | TValue;
 type ValueOrAccumulator<TValue> = ((prevValue: TValue) => TValue) | TValue;
@@ -11,26 +13,25 @@ function isFunction<T extends Function>(value: unknown): value is T {
 }
 
 function createStateSubject<TValue>(
-	initialValueOrFn?: ValueOrFactory<TValue>
-): Subject<ValueOrAccumulator<TValue>> {
-	const initialValue: TValue | undefined = isFunction(initialValueOrFn)
+	initialValueOrFn: ValueOrFactory<TValue> | typeof NO_EMIT
+): Subject<ValueOrAccumulator<TValue> | typeof NO_EMIT> {
+	const initialValue: TValue | typeof NO_EMIT = isFunction(initialValueOrFn)
 		? initialValueOrFn()
 		: initialValueOrFn;
-	return initialValue === undefined
-		? new ReplaySubject<ValueOrAccumulator<TValue>>(1)
-		: new BehaviorSubject<ValueOrAccumulator<TValue>>(initialValue);
+	return new BehaviorSubject(initialValue);
 }
 
 function resolveNextState<TValue>(): UnaryFunction<
-	Observable<ValueOrAccumulator<TValue>>,
+	Observable<ValueOrAccumulator<TValue> | typeof NO_EMIT>,
 	Observable<TValue>
 > {
 	return pipe(
-		scan<ValueOrAccumulator<TValue>, TValue>((currentState, nextStateOrFn) => {
+		filter((nextState): nextState is ValueOrAccumulator<TValue> => nextState !== NO_EMIT),
+		scan((currentState: ValueOrAccumulator<TValue>, nextStateOrFn: TValue) => {
 			const nextState = isFunction(nextStateOrFn) ? nextStateOrFn(currentState) : nextStateOrFn;
 			return nextState;
 		}),
-		distinctUntilChanged<TValue>(Object.is)
+		distinctUntilChanged(Object.is)
 	);
 }
 
@@ -39,7 +40,7 @@ function resolveNextState<TValue>(): UnaryFunction<
  *
  * Alternative to Reacts `useState` hook where the first value in the array returned is an observable
  * representing the current value rather than the raw value.
- * @param initialValue - An initial value for the returned observable to emit.
+ * @param initialValue - Optional. An initial value for the returned observable to emit.
  *
  * If no value is provided then the returned observable will not emit an initial value.
  *
@@ -56,12 +57,13 @@ function resolveNextState<TValue>(): UnaryFunction<
  * If the next value is the same as the current value, then the observable will not emit the new value.
  */
 export function useStateObservable<TValue>(
-	initialValue?: ValueOrFactory<TValue>
+	initialValue: ValueOrFactory<TValue> | typeof NO_EMIT = NO_EMIT
 ): [Observable<TValue>, (value: ValueOrAccumulator<TValue>) => void] {
-	const nextStateOrFn$: Subject<ValueOrAccumulator<TValue>> = useFactory(
-		() => createStateSubject(initialValue),
-		[]
-	);
+	const nextStateOrFn$ = useFactory(() => createStateSubject(initialValue), []);
+
+	useLayoutEffect(() => {
+		return () => nextStateOrFn$.complete();
+	}, [nextStateOrFn$]);
 
 	const updateState = useCallback(
 		(nextValue: ValueOrAccumulator<TValue>) => {

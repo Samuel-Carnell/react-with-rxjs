@@ -15,9 +15,29 @@ function isFunction<T extends Function>(value: unknown): value is T {
  *
  * Alternative to Reacts `useState` hook where the first value in the array returned is an observable
  * representing the current value rather than the raw value.
- * @param initialState - Optional. An initial value for the returned observable to emit.
  *
- * If no value is provided then the returned observable will not emit an initial value.
+ * @returns
+ * `[0]` - A multi-casted observable which holds the current value emitted to consumers. This observable will replay the
+ * current value when a new observer subscribes to it then any subsequent values fed to it.
+ *
+ * `[1]` - A function for feeding new values to the observable.
+ * @param nextValue - The next value to feed to the observable.
+ *
+ * If a function is provided then it will be called with the current value to calculate the next value.
+ *
+ * If the next value is the same as the current value, then the observable will not emit the new value.
+ */
+export function useStateObservable<TValue>(): [
+	Observable<TValue | undefined>,
+	(value: ValueOrAccumulator<TValue>) => void
+];
+
+/**
+ * Returns a new multi-casted observable and a function feed new values to it.
+ *
+ * Alternative to Reacts `useState` hook where the first value in the array returned is an observable
+ * representing the current value rather than the raw value.
+ * @param initialState - An initial value for the returned observable to emit.
  *
  * If a function is provided then it will be called only on the initial render to calculate the initial value.
  * @returns
@@ -33,10 +53,14 @@ function isFunction<T extends Function>(value: unknown): value is T {
  */
 export function useStateObservable<TValue>(
 	initialState: ValueOrFactory<TValue>
-): [Observable<TValue>, (value: ValueOrAccumulator<TValue>) => void] {
+): [Observable<TValue>, (value: ValueOrAccumulator<TValue>) => void];
+
+export function useStateObservable(
+	initialState?: ValueOrFactory<unknown>
+): [Observable<unknown>, (value: ValueOrAccumulator<unknown>) => void] {
 	const stateOrAcc$ = useFactory(() => {
-		const state: TValue = isFunction(initialState) ? initialState() : initialState;
-		return new BehaviorSubject<ValueOrAccumulator<TValue>>(state);
+		const state = isFunction(initialState) ? initialState() : initialState;
+		return new BehaviorSubject<ValueOrAccumulator<unknown>>(state);
 	}, []);
 
 	useLayoutEffect(() => {
@@ -44,16 +68,16 @@ export function useStateObservable<TValue>(
 	}, [stateOrAcc$]);
 
 	const setState = useCallback(
-		(state: ValueOrAccumulator<TValue>) => {
+		(state: ValueOrAccumulator<unknown>) => {
 			stateOrAcc$.next(state);
 		},
 		[stateOrAcc$]
 	);
 
-	const state$: Observable<TValue> = useFactory(
+	const state$: Observable<unknown> = useFactory(
 		() =>
 			stateOrAcc$.pipe(
-				scan((previousState: ValueOrAccumulator<TValue>, stateOrAcc: TValue) => {
+				scan((previousState: unknown, stateOrAcc: ValueOrAccumulator<unknown>) => {
 					const state = isFunction(stateOrAcc) ? stateOrAcc(previousState) : stateOrAcc;
 					return state;
 				}),

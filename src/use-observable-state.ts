@@ -9,14 +9,14 @@ import { useSubscription } from './helpers/use-subscription';
  *
  * If `observable` changes between re-renders then this function subscribes to
  * new observable, and disposes of the previous subscription.
- * @typeParam `TValue` - The type of the value emitted by `observable`.
- * @typeParam `TError` - The type of error thrown by `observable`. Defaults to `any`.
- * @param observable - The source observable to subscribe to.
+ * @typeParam `TValue` The type of the value emitted by `observable`.
+ * @typeParam `TError` The type of error thrown by `observable`. Defaults to `any`.
+ * @param observable The source observable to subscribe to.
  * @returns
  *
- * `[0]` - The latest value emitted by the `observable`, or the `initialValue` if it has not yet emitted a value.
+ * `[0]` - The latest value emitted by `observable`, or `initialValue` if it has not yet emitted a value.
  *
- * `[1]` - The error thrown by the `observable`, or `undefined` if it has not thrown an error.
+ * `[1]` - The error thrown by `observable`, or `undefined` if it has not thrown an error.
  *
  * `[2]` - A boolean representing if the given observable is complete. If the observable changes between re-renders,
  * then this will be reset to `false`.
@@ -36,9 +36,9 @@ export function useObservableState<TValue, TError = any>(
  * @param observable The source observable to subscribe to.
  * @param initialValue The value to return until the given observable has emitted a value.
  * @returns
- * `[0]` - The latest value emitted by the `observable`, or `initialValue` if it has not yet emitted a value.
+ * `[0]` - The latest value emitted by `observable`, or `initialValue` if it has not yet emitted a value.
  *
- * `[1]` - The error thrown by the `observable`, or `undefined` if it has not thrown an error.
+ * `[1]` - The error thrown by `observable`, or `undefined` if it has not thrown an error.
  *
  * `[2]` - A boolean representing if the given observable is complete. If the observable changes between re-renders,
  * then this will be reset to `false`.

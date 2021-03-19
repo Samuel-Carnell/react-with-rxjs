@@ -2,13 +2,10 @@ import { useCallback, useLayoutEffect } from 'react';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged, scan } from 'rxjs/operators';
 import { useFactory } from './helpers/use-factory';
+import { isFunction } from './helpers/is-function';
 
 type ValueOrFactory<TValue> = (() => TValue) | TValue;
 type ValueOrAccumulator<TValue> = ((prevValue: TValue) => TValue) | TValue;
-
-function isFunction<T extends Function>(value: unknown): value is T {
-	return typeof value === 'function' && value instanceof Function;
-}
 
 /**
  * Returns a new multi-casted observable and an updater function to feed new values to it.

@@ -34,8 +34,7 @@ function areInputsDifferent<TInput extends any[]>(
 }
 
 /**
- * Determines if the any of the values in the `input` have changed between re-renders. This function is concurrent
- * mode safe.
+ * Determines if the any of the values in `input` have changed between re-renders.
  * @param input The array of values to check.
  * @param rootHookName Optional. The name of the caller hook to use when logging errors.
  * @returns True if any of the values have been changed between re renders, otherwise false.

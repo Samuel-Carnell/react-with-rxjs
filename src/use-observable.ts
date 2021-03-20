@@ -5,15 +5,15 @@ import { useFactory } from './helpers/use-factory';
  * Uses the provided `observableFactory` to compute the returned observable. This observable persists across renders,
  * only being recomputed if any of the dependencies change.
  *
- * @typeParam `TObservable` The type of observable produced by `observableFactory`.
+ * @typeParam `TValue` The type of the value emitted by `observable`.
  * @param observableFactory Function to use to re/compute the returned observable.
  * @param dependencies Optional. A list of dependencies used by `observableFactory` function.
  * @returns An observable produced by `observableFactory` function.
  */
-export function useObservable<TObservable extends Observable<any>>(
-	observableFactory: () => TObservable,
+export function useObservable<TValue>(
+	observableFactory: () => Observable<TValue>,
 	dependencies: unknown[] = []
-): TObservable {
+): Observable<TValue> {
 	if (!Array.isArray(dependencies)) {
 		throw new TypeError(`${dependencies} is not an Array. For argument input in useObservable`);
 	}

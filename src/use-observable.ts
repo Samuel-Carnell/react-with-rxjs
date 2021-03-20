@@ -15,7 +15,7 @@ export function useObservable<TObservable extends Observable<any>>(
 	dependencies: unknown[] = []
 ): TObservable {
 	if (!Array.isArray(dependencies)) {
-		throw new TypeError(`${dependencies} is an Array. For argument input in useObservable`);
+		throw new TypeError(`${dependencies} is not an Array. For argument input in useObservable`);
 	}
 
 	const observable = useFactory(observableFactory, dependencies, 'useObservable');

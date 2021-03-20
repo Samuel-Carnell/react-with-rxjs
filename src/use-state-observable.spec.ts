@@ -207,11 +207,7 @@ describe('useStateObservable', () => {
 
 	it('only calls initialState once, when re-rendered twice', () => {
 		const mockInitialState = jest.fn().mockReturnValue(undefined);
-		// Need to wrap this in a real function as a jest mock function is not an instance of Function
-		const initialState = () => {
-			mockInitialState();
-		};
-		const { rerender } = renderUseStateObservableHook([initialState]);
+		const { rerender } = renderUseStateObservableHook([mockInitialState]);
 		rerender([mockInitialState]);
 		rerender([mockInitialState]);
 

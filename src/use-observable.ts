@@ -15,7 +15,9 @@ export function useObservable<TValue>(
 	dependencies: unknown[] = []
 ): Observable<TValue> {
 	if (!Array.isArray(dependencies)) {
-		throw new TypeError(`${dependencies} is not an Array. For argument input in useObservable`);
+		throw new TypeError(
+			`${dependencies} is not an Array. For argument dependencies in useObservable`
+		);
 	}
 
 	const observable = useFactory(observableFactory, dependencies, 'useObservable');

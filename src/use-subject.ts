@@ -16,7 +16,7 @@ export function useSubject<TValue>(
 	dependencies: unknown[] = []
 ): Subject<TValue> {
 	if (!Array.isArray(dependencies)) {
-		throw new TypeError(`${dependencies} is not an Array. For argument input in useSubject`);
+		throw new TypeError(`${dependencies} is not an Array. For argument dependencies in useSubject`);
 	}
 
 	const subject = useFactory(subjectFactory, dependencies, 'useSubject');

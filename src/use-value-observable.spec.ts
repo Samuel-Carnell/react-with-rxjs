@@ -1,4 +1,5 @@
 import { Renderer, renderHook, RenderHookResult } from '@testing-library/react-hooks';
+import { Observable } from 'rxjs';
 import { useValueObservable } from './use-value-observable';
 
 type useValueObservableParams = Parameters<typeof useValueObservable>;
@@ -51,18 +52,19 @@ describe('useValueObservable', () => {
 		${false}            | ${false}
 		${'test'}           | ${'test'}
 	`(
-		'returns an observable which replays $expected, when called with undefined, then re-rendered with $value, then the returned observable is subscribed to',
+		'returns an observable which replays $expected, when called with undefined, then re-rendered with $value twice, then the returned observable is subscribed to',
 		({ value, expected }) => {
 			const { result, rerender } = renderUseValueObservableHook([undefined]);
 			const value$ = result.current;
 
+			rerender([value]);
 			rerender([value]);
 			const mockNext = jest.fn();
 			const subscription = value$.subscribe({
 				next: mockNext,
 			});
 
-			expect(mockNext).toHaveBeenNthCalledWith(1, expected);
+			expect(mockNext).toHaveBeenLastCalledWith(expected);
 
 			subscription.unsubscribe();
 		}
@@ -71,6 +73,7 @@ describe('useValueObservable', () => {
 	it.each`
 		value               | expected
 		${1}                | ${1}
+		${undefined}        | ${undefined}
 		${null}             | ${null}
 		${Number.MIN_VALUE} | ${Number.MIN_VALUE}
 		${false}            | ${false}
@@ -87,7 +90,7 @@ describe('useValueObservable', () => {
 			});
 			rerender([value]);
 
-			expect(mockNext).toHaveBeenNthCalledWith(2, expected);
+			expect(mockNext).toHaveBeenLastCalledWith(expected);
 
 			subscription.unsubscribe();
 		}
@@ -131,13 +134,17 @@ describe('useValueObservable', () => {
 	});
 
 	it.each`
-		initialValue  | firstValue    | secondValue   | thirdValue    | expectedNumberOfTimes
-		${undefined}  | ${1}          | ${2}          | ${3}          | ${4}
-		${undefined}  | ${undefined}  | ${1}          | ${2}          | ${3}
-		${0}          | ${0}          | ${0}          | ${0}          | ${1}
-		${false}      | ${true}       | ${false}      | ${false}      | ${3}
-		${false}      | ${1}          | ${'test'}     | ${undefined}  | ${4}
-		${new Date()} | ${new Date()} | ${new Date()} | ${new Date()} | ${4}
+		initialValue        | firstValue          | secondValue         | thirdValue          | expectedNumberOfTimes
+		${undefined}        | ${1}                | ${2}                | ${3}                | ${4}
+		${undefined}        | ${undefined}        | ${1}                | ${2}                | ${3}
+		${0}                | ${0}                | ${0}                | ${0}                | ${1}
+		${false}            | ${true}             | ${false}            | ${false}            | ${3}
+		${false}            | ${1}                | ${'test'}           | ${undefined}        | ${4}
+		${new Date()}       | ${new Date()}       | ${new Date()}       | ${new Date()}       | ${4}
+		${/test/}           | ${/test/}           | ${/test/}           | ${/test/}           | ${4}
+		${new Observable()} | ${new Observable()} | ${new Observable()} | ${new Observable()} | ${4}
+		${parseInt('asdf')} | ${parseInt('asdf')} | ${Number.NaN}       | ${parseInt('asdf')} | ${1}
+		${() => {}}         | ${() => {}}         | ${() => {}}         | ${() => {}}         | ${4}
 	`(
 		'returns an observable which emits $expectedNumberOfTimes times, when called with $initialValue, then the returned observable is subscribed to, then re-rendered with $firstValue, then re-rendered with $secondValue, then re-rendered with $thirdValue',
 		({ initialValue, firstValue, secondValue, thirdValue, expectedNumberOfTimes }) => {
@@ -159,13 +166,17 @@ describe('useValueObservable', () => {
 	);
 
 	it.each`
-		initialValue | firstValue   | secondValue | thirdValue   | expected
-		${undefined} | ${1}         | ${2}        | ${3}         | ${3}
-		${undefined} | ${undefined} | ${1}        | ${2}         | ${2}
-		${0}         | ${0}         | ${0}        | ${0}         | ${0}
-		${'test'}    | ${'test2'}   | ${'test2'}  | ${'test2'}   | ${'test2'}
-		${false}     | ${true}      | ${false}    | ${false}     | ${false}
-		${false}     | ${1}         | ${'test'}   | ${undefined} | ${undefined}
+		initialValue  | firstValue        | secondValue | thirdValue          | expected
+		${undefined}  | ${1}              | ${2}        | ${3}                | ${3}
+		${undefined}  | ${undefined}      | ${1}        | ${2}                | ${2}
+		${0}          | ${0}              | ${0}        | ${0}                | ${0}
+		${'test'}     | ${'test2'}        | ${'test2'}  | ${'test2'}          | ${'test2'}
+		${false}      | ${true}           | ${false}    | ${false}            | ${false}
+		${false}      | ${1}              | ${'test'}   | ${undefined}        | ${undefined}
+		${1}          | ${2}              | ${3}        | ${1}                | ${1}
+		${new Date()} | ${{}}             | ${Math}     | ${new Observable()} | ${new Observable()}
+		${{ a: 1 }}   | ${{ a: 1, b: 2 }} | ${{ a: 2 }} | ${{ b: 2 }}         | ${{ b: 2 }}
+		${/test/}     | ${[]}             | ${[]}       | ${[]}               | ${[]}
 	`(
 		'returns an observable which emits $initialValue, when called with $initialValue, then the returned observable is subscribed to, then re-render with $firstValue, then re-rendered with $secondValue, then re-rendered with $thirdValue',
 		({ initialValue, firstValue, secondValue, thirdValue, expected }) => {
@@ -181,6 +192,38 @@ describe('useValueObservable', () => {
 			rerender([thirdValue]);
 
 			expect(mockNext).toHaveBeenLastCalledWith(expected);
+
+			subscription.unsubscribe();
+		}
+	);
+
+	it.each`
+		initialValue  | firstValue    | secondValue   | thirdValue    | expectedNumberOfTimes
+		${undefined}  | ${1}          | ${2}          | ${3}          | ${3}
+		${undefined}  | ${undefined}  | ${1}          | ${2}          | ${3}
+		${0}          | ${0}          | ${0}          | ${0}          | ${1}
+		${false}      | ${true}       | ${false}      | ${false}      | ${2}
+		${false}      | ${1}          | ${'test'}     | ${undefined}  | ${3}
+		${new Date()} | ${new Date()} | ${new Date()} | ${new Date()} | ${3}
+		${false}      | ${false}      | ${false}      | ${true}       | ${2}
+		${null}       | ${null}       | ${'test'}     | ${null}       | ${3}
+		${[]}         | ${[]}         | ${[]}         | ${[]}         | ${3}
+		${2}          | ${1}          | ${1}          | ${1}          | ${1}
+	`(
+		'returns an observable which emits $expectedNumberOfTimes times, when called with $initialValue, then re-rendered with $firstValue, then the returned observable is subscribed to, then re-rendered with $secondValue, then re-rendered with $thirdValue',
+		({ initialValue, firstValue, secondValue, thirdValue, expectedNumberOfTimes }) => {
+			const { result, rerender } = renderUseValueObservableHook([initialValue]);
+			const value$ = result.current;
+
+			rerender([firstValue]);
+			const mockNext = jest.fn();
+			const subscription = value$.subscribe({
+				next: mockNext,
+			});
+			rerender([secondValue]);
+			rerender([thirdValue]);
+
+			expect(mockNext).toBeCalledTimes(expectedNumberOfTimes);
 
 			subscription.unsubscribe();
 		}

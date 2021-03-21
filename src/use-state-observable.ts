@@ -60,10 +60,14 @@ export function useStateObservable<TValue>(
 export function useStateObservable(
 	initialValue?: ValueOrFactory<unknown>
 ): [Observable<unknown>, (value: ValueOrAccumulator<unknown>) => void] {
-	const valueOrAcc$ = useFactory(() => {
-		const value = isFunction(initialValue) ? initialValue() : initialValue;
-		return new BehaviorSubject<ValueOrAccumulator<unknown>>(value);
-	}, []);
+	const valueOrAcc$ = useFactory(
+		() => {
+			const value = isFunction(initialValue) ? initialValue() : initialValue;
+			return new BehaviorSubject<ValueOrAccumulator<unknown>>(value);
+		},
+		[],
+		'useStateObservable'
+	);
 
 	useLayoutEffect(() => {
 		return () => valueOrAcc$.complete();
@@ -85,7 +89,8 @@ export function useStateObservable(
 				}),
 				distinctUntilChanged(Object.is)
 			),
-		[valueOrAcc$]
+		[valueOrAcc$],
+		'useStateObservable'
 	);
 
 	return [value$, updateValue];

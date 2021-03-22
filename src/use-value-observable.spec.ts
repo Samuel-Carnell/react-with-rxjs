@@ -26,6 +26,8 @@ describe('useValueObservable', () => {
 		${Number.MIN_VALUE} | ${Number.MIN_VALUE}
 		${false}            | ${false}
 		${'test'}           | ${'test'}
+		${new Observable()} | ${new Observable()}
+		${Boolean}          | ${Boolean}
 	`(
 		'returns an observable which replays $expected, when called with $value, then the returned observable is subscribed to',
 		({ value, expected }) => {
@@ -46,11 +48,14 @@ describe('useValueObservable', () => {
 	it.each`
 		value               | expected
 		${1}                | ${1}
+		${new Blob()}       | ${new Blob()}
 		${null}             | ${null}
 		${undefined}        | ${undefined}
 		${Number.MIN_VALUE} | ${Number.MIN_VALUE}
 		${false}            | ${false}
 		${'test'}           | ${'test'}
+		${new Date()}       | ${new Date()}
+		${BigInt(1)}        | ${BigInt(1)}
 	`(
 		'returns an observable which replays $expected, when called with undefined, then re-rendered with $value twice, then the returned observable is subscribed to',
 		({ value, expected }) => {
@@ -71,13 +76,16 @@ describe('useValueObservable', () => {
 	);
 
 	it.each`
-		value               | expected
-		${1}                | ${1}
-		${undefined}        | ${undefined}
-		${null}             | ${null}
-		${Number.MIN_VALUE} | ${Number.MIN_VALUE}
-		${false}            | ${false}
-		${'test'}           | ${'test'}
+		value         | expected
+		${1}          | ${1}
+		${undefined}  | ${undefined}
+		${null}       | ${null}
+		${Number.NaN} | ${Number.NaN}
+		${'test'}     | ${'test'}
+		${''}         | ${''}
+		${true}       | ${true}
+		${[]}         | ${[]}
+		${{ a: 1 }}   | ${{ a: 1 }}
 	`(
 		'returns an observable which emits $expected, when called with undefined, then the returned observable is subscribed to, then re-rendered with $value',
 		({ value, expected }) => {
@@ -95,6 +103,22 @@ describe('useValueObservable', () => {
 			subscription.unsubscribe();
 		}
 	);
+
+	it('returns an observable which only replays once, when called with undefined, then twice re-rendered with the same value, then is the returned observable is subscribed to', () => {
+		const { result, rerender } = renderUseValueObservableHook([undefined]);
+		const value$ = result.current;
+
+		rerender([undefined]);
+		rerender([undefined]);
+		const mockNext = jest.fn();
+		const subscription = value$.subscribe({
+			next: mockNext,
+		});
+
+		expect(mockNext).toHaveBeenCalledTimes(1);
+
+		subscription.unsubscribe();
+	});
 
 	it('returns an observable which completes, when called with undefined, then the returned observable is subscribed to, then the hook is unmounted', () => {
 		const { result, unmount } = renderUseValueObservableHook([undefined]);
@@ -145,6 +169,7 @@ describe('useValueObservable', () => {
 		${new Observable()} | ${new Observable()} | ${new Observable()} | ${new Observable()} | ${4}
 		${parseInt('asdf')} | ${parseInt('asdf')} | ${Number.NaN}       | ${parseInt('asdf')} | ${1}
 		${() => {}}         | ${() => {}}         | ${() => {}}         | ${() => {}}         | ${4}
+		${'test'}           | ${'test'}           | ${'test'}           | ${'test'}           | ${1}
 	`(
 		'returns an observable which emits $expectedNumberOfTimes times, when called with $initialValue, then the returned observable is subscribed to, then re-rendered with $firstValue, then re-rendered with $secondValue, then re-rendered with $thirdValue',
 		({ initialValue, firstValue, secondValue, thirdValue, expectedNumberOfTimes }) => {
@@ -209,6 +234,7 @@ describe('useValueObservable', () => {
 		${null}       | ${null}       | ${'test'}     | ${null}       | ${3}
 		${[]}         | ${[]}         | ${[]}         | ${[]}         | ${3}
 		${2}          | ${1}          | ${1}          | ${1}          | ${1}
+		${null}       | ${null}       | ${null}       | ${null}       | ${1}
 	`(
 		'returns an observable which emits $expectedNumberOfTimes times, when called with $initialValue, then re-rendered with $firstValue, then the returned observable is subscribed to, then re-rendered with $secondValue, then re-rendered with $thirdValue',
 		({ initialValue, firstValue, secondValue, thirdValue, expectedNumberOfTimes }) => {

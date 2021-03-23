@@ -86,7 +86,7 @@ describe('useStateObservable', () => {
 		${undefined}        | ${undefined}
 		${(x) => !!x}       | ${false}
 		${(x) => !x}        | ${true}
-		${Boolean}          | ${new Boolean(undefined)}
+		${Boolean}          | ${false}
 		${() => [9999999]}  | ${[9999999]}
 		${() => ''}         | ${''}
 		${{}}               | ${{}}
@@ -133,12 +133,12 @@ describe('useStateObservable', () => {
 		${undefined}    | ${2}
 		${null}         | ${2}
 		${'0'}          | ${2}
-		${0.0}          | ${2}
+		${0.0}          | ${1}
 		${() => 0}      | ${1}
 		${(x) => x + 1} | ${2}
 		${(x) => x * 1} | ${1}
 	`(
-		'returns an observable which replays $expectedNumberOfTimes, when rendered with 0, then the returned observable is subscribed to, then setState is called with $state,',
+		'returns an observable which emits $expectedNumberOfTimes times, when rendered with 0, then the returned observable is subscribed to, then setState is called with $state,',
 		({ state, expectedNumberOfTimes }) => {
 			const { result } = renderUseStateObservableHook([0]);
 			const [state$, setState] = result.current;
@@ -147,7 +147,7 @@ describe('useStateObservable', () => {
 			const subscription = state$.subscribe({
 				next: mockNext,
 			});
-			setState({ state });
+			setState(state);
 
 			expect(mockNext).toHaveBeenCalledTimes(expectedNumberOfTimes);
 
@@ -280,18 +280,18 @@ describe('useStateObservable', () => {
 		${undefined}        | ${undefined}          | ${1}                  | ${2}             | ${3}
 		${0}                | ${0}                  | ${0}                  | ${0}             | ${1}
 		${'test'}           | ${'test2'}            | ${'test2'}            | ${'test2'}       | ${1}
-		${{}}               | ${{}}                 | ${{}}                 | ${{}}            | ${2}
+		${{}}               | ${{}}                 | ${{}}                 | ${{}}            | ${3}
 		${'test'}           | ${(x) => x}           | ${(x) => x}           | ${(x) => x}      | ${1}
-		${[]}               | ${[]}                 | ${[]}                 | ${() => []}      | ${2}
+		${[]}               | ${[]}                 | ${[]}                 | ${() => []}      | ${3}
 		${() => 1}          | ${(x) => x - 1}       | ${(x) => x + 1}       | ${(x) => x - 1}  | ${3}
-		${() => 'test'}     | ${'test'}             | ${(x) => x + 'test'}  | ${'test'}        | ${2}
-		${false}            | ${true}               | ${false}              | ${false}         | ${1}
-		${false}            | ${1}                  | ${'test'}             | ${undefined}     | ${2}
-		${() => new Date()} | ${new Date()}         | ${new Date()}         | ${new Date()}    | ${2}
+		${() => 'test'}     | ${'test'}             | ${(x) => x + 'test'}  | ${'test'}        | ${3}
+		${false}            | ${true}               | ${false}              | ${false}         | ${2}
+		${false}            | ${1}                  | ${'test'}             | ${undefined}     | ${3}
+		${() => new Date()} | ${new Date()}         | ${() => new Date()}   | ${(x) => x}      | ${2}
 		${() => false}      | ${(x) => !x}          | ${true}               | ${true}          | ${1}
-		${() => 'test'}     | ${false}              | ${[true]}             | ${'test'}        | ${2}
+		${() => 'test'}     | ${false}              | ${[true]}             | ${'test'}        | ${3}
 		${() => 1}          | ${(x) => x / 0}       | ${(x) => x / 0}       | ${(x) => x / 0}  | ${1}
-		${() => ['a']}      | ${(x) => [...x, 'b']} | ${(x) => [...x, 'c']} | ${(x) => [...x]} | ${2}
+		${() => ['a']}      | ${(x) => [...x, 'b']} | ${(x) => [...x, 'c']} | ${(x) => [...x]} | ${3}
 	`(
 		'returns an observable which emits $expectedNumberOfTimes times, when called with $initialState, then setState is called with $firstState, then the returned observable is subscribed to, then setState is called with $secondState, then setState is called with $thirdState',
 		({ initialState, firstState, secondState, thirdState, expectedNumberOfTimes }) => {

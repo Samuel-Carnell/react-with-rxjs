@@ -80,6 +80,35 @@ describe('useStateObservable', () => {
 	);
 
 	it.each`
+		initialState     | secondInitialState  | expected
+		${0}             | ${0.1}              | ${0}
+		${() => 100}     | ${77}               | ${100}
+		${''}            | ${'test'}           | ${''}
+		${() => jest.fn} | ${() => {}}         | ${jest.fn}
+		${undefined}     | ${null}             | ${undefined}
+		${null}          | ${undefined}        | ${null}
+		${new Blob()}    | ${() => new Blob()} | ${new Blob()}
+		${false}         | ${() => true}       | ${false}
+		${{}}            | ${{}}               | ${{}}
+	`(
+		'returns an observable which emits $expected, when called with $initialState, then the returned observable is subscribed to, then is re-render $secondInitialState',
+		({ initialState, secondInitialState, expected }) => {
+			const { result, rerender } = renderUseStateObservableHook([initialState]);
+			const [state$] = result.current;
+
+			const mockNext = jest.fn();
+			const subscription = state$.subscribe({
+				next: mockNext,
+			});
+			rerender(secondInitialState);
+
+			expect(mockNext).toHaveBeenNthCalledWith(1, expected);
+
+			subscription.unsubscribe();
+		}
+	);
+
+	it.each`
 		state               | expected
 		${0.1}              | ${0.1}
 		${null}             | ${null}

@@ -52,10 +52,7 @@ function publishCurrentState$<TState>(
  *
  * If the next value is the same as the current value, then the observable will not emit the new value.
  */
-export function useStateObservable<TState>(): [
-	Observable<TState | undefined>,
-	(value: TState | Factory<TState>) => void
-];
+export function useStateObservable<TState>(): [Observable<TState | undefined>, SetSate<TState>];
 
 /**
  * Returns a new multi-casted observable and an updater function to feed new values to it.

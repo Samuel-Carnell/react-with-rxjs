@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-export const IS_DEV = process?.env?.NODE_ENV === 'development';
-
 function logError(message: string, ...args: unknown[]) {
+	const IS_DEV = process.env.NODE_ENV === 'development';
 	if (IS_DEV) {
 		console.error(message, args);
 	}

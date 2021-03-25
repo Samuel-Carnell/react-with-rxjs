@@ -7,15 +7,20 @@ import { useSubscription } from './helpers/use-subscription';
 
 type Factory<T> = () => T;
 type Operator<T> = (value: T) => T;
+
+/**
+ * A function to set the current state emitted by the observable return from `useStateObservable`
+ * @param state A value to set the current state to or a function to calculate the current state from the previous state.
+ */
 type SetSate<T> = (state: T | Operator<T>) => void;
 
 function publishCurrentState$<TState>(
-	stateOrOperatorFn$: Observable<TState | Operator<TState>>,
-	initialStateOrFactory: TState | Factory<TState>
+	valueOrOperatorFn$: Observable<TState | Operator<TState>>,
+	initialValueOrFactoryFn: TState | Factory<TState>
 ): ConnectableObservable<TState> {
-	const initialState: TState = isFunction(initialStateOrFactory)
-		? initialStateOrFactory()
-		: initialStateOrFactory;
+	const initialState: TState = isFunction(initialValueOrFactoryFn)
+		? initialValueOrFactoryFn()
+		: initialValueOrFactoryFn;
 
 	const publishCurrentValue: OperatorFunction<TState | Operator<TState>, TState> = pipe(
 		startWith(initialState),
@@ -29,51 +34,37 @@ function publishCurrentState$<TState>(
 	);
 
 	// The pipe operator doesn't infer the return type as ConnectableObservable, so the return type needs to be casted
-	return stateOrOperatorFn$.pipe(publishCurrentValue) as ConnectableObservable<TState>;
+	return valueOrOperatorFn$.pipe(publishCurrentValue) as ConnectableObservable<TState>;
 }
 
 /**
- * Returns a new multi-casted observable and an updater function to feed new values to it.
+ * Returns observable of the current state and a function to set the current state, with the current state initially set
+ * to `undefined`.
  *
  * Alternative to Reacts `useState` hook where the first value in the array returned is an observable
- * representing the current value rather than the raw value.
- * @typeParam `TValue` The type of the value emitted by the returned observable and the first parameter of the updater
- * function.
+ * representing the current state rather than the value.
+ * @typeParam `TState` The type of state emitted by the returned observable and the first parameter of the setState function
  *
  * @returns
- * `[0]` - A multi-casted observable which holds the current value emitted to consumers, where the current value
- * defaults to undefined until the current value is updated. This observable will replay the current value when a new observer
- * subscribes to it, then any subsequent values fed to it.
+ * `[0]` - An observable which replays the current state when subscribed to, then emits when the current state is updated.
  *
- * `[1]` - An updater function for feeding new values to the observable.
- * @param value The next value to feed to the observable.
- *
- * If a function is provided then it will be called with the current value to calculate the next value.
- *
- * If the next value is the same as the current value, then the observable will not emit the new value.
+ * `[1]` - A function to set the current state, emitted by the returned observable.
  */
 export function useStateObservable<TState>(): [Observable<TState | undefined>, SetSate<TState>];
 
 /**
- * Returns a new multi-casted observable and an updater function to feed new values to it.
+ * Returns observable of the current state and a function to set the current state.
  *
  * Alternative to Reacts `useState` hook where the first value in the array returned is an observable
- * representing the current value rather than the raw value.
- * @typeParam `TValue` The type of the value emitted by the returned observable and the first parameter of the updater
- * function.
- * @param initialState An initial value for the returned observable to emit.
+ * representing the current state rather than the value.
+ * @typeParam `TState` The type of state emitted by the returned observable and the first parameter of the setState function
+ * @param initialState A value to use as the initial state or a factory function to create the initial state.
  *
- * If a function is provided then it will be called only on the initial render to calculate the initial value.
+ * If a factory function is provided then it will only be called when the component is initially mounted.
  * @returns
- * `[0]` - A multi-casted observable which holds the current value emitted to consumers. This observable will replay the
- * current value when a new observer subscribes to it, then any subsequent values fed to it.
+ * `[0]` - An observable which replays the current state when subscribed to, then emits when the current state is updated.
  *
- * `[1]` - An updater function for feeding new values to the observable.
- * @param value The next value to feed to the observable.
- *
- * If a function is provided then it will be called with the current value to calculate the next value.
- *
- * If the next value is the same as the current value, then the observable will not emit the new value.
+ * `[1]` - A function to set the current state, emitted by the returned observable.
  */
 export function useStateObservable<TState>(
 	initialState: TState | Factory<TState>
@@ -82,28 +73,28 @@ export function useStateObservable<TState>(
 export function useStateObservable(
 	initialState?: unknown | Factory<unknown>
 ): [Observable<unknown>, SetSate<unknown>] {
-	const stateOrOperatorFn$: Subject<unknown | Operator<unknown>> = useFactory(
+	const valueOrOperatorFn$: Subject<unknown | Operator<unknown>> = useFactory(
 		() => new Subject<unknown | Operator<unknown>>(),
 		[],
 		'useStateObservable'
 	);
 
 	useLayoutEffect(() => {
-		return () => stateOrOperatorFn$.complete();
+		return () => valueOrOperatorFn$.complete();
 	}, []);
 
 	const setState: SetSate<unknown> = useCallback(
 		(state: unknown | Operator<unknown>) => {
-			const stateOrOperator = state;
-			stateOrOperatorFn$.next(stateOrOperator);
+			const valueOrOperator = state;
+			valueOrOperatorFn$.next(valueOrOperator);
 		},
-		[stateOrOperatorFn$]
+		[valueOrOperatorFn$]
 	);
 
-	// initialState is not specified as a dependency as it is only used on the first render
+	// initialState is not specified as a dependency as it is only used when the component mounts
 	const currentState$: ConnectableObservable<unknown> = useFactory(
-		() => publishCurrentState$(stateOrOperatorFn$, initialState),
-		[stateOrOperatorFn$],
+		() => publishCurrentState$(valueOrOperatorFn$, initialState),
+		[valueOrOperatorFn$],
 		'useStateObservable'
 	);
 

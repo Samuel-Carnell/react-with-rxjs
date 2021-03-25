@@ -70,4 +70,82 @@ describe('useHasInputChanged', () => {
 			expect(result.current).toBe(expected);
 		}
 	);
+
+	it.each`
+		firstInput     | secondInput
+		${['test']}    | ${[]}
+		${[1, '']}     | ${[1, 3, '']}
+		${[1]}         | ${[1, 2]}
+		${[true]}      | ${[]}
+		${['test', 2]} | ${['test', 2, 3]}
+	`(
+		'calls console.error in development mode, when given $firstInput, then $secondInput',
+		({ firstInput, secondInput }) => {
+			const originalNodeEnv = process?.env?.NODE_ENV;
+			process.env.NODE_ENV = 'development';
+
+			// Using jest.fn rather than jest.spyOn to prevent the actual console.error method from being called
+			console.error = jest.fn();
+			const { rerender } = renderUseHasInputChangedHook([firstInput]);
+			rerender([secondInput]);
+
+			expect(console.error).toHaveBeenCalled();
+
+			process.env.NODE_ENV = originalNodeEnv;
+		}
+	);
+
+	it.each`
+		firstInput     | secondInput
+		${['test']}    | ${[]}
+		${[1, '']}     | ${[1, 3, '']}
+		${[1]}         | ${[1, 2]}
+		${[true]}      | ${[]}
+		${['test', 2]} | ${['test', 2, 3]}
+	`(
+		'does not call console.error in production mode, when given $firstInput, then $secondInput',
+		({ firstInput, secondInput }) => {
+			const originalNodeEnv = process?.env?.NODE_ENV;
+			process.env.NODE_ENV = 'production';
+
+			// Using jest.fn rather than jest.spyOn to prevent the actual console.error method from being called
+			console.error = jest.fn();
+			const { rerender } = renderUseHasInputChangedHook([firstInput]);
+			rerender([secondInput]);
+
+			expect(console.error).not.toHaveBeenCalled();
+
+			process.env.NODE_ENV = originalNodeEnv;
+		}
+	);
+
+	it.each`
+		firstInput              | secondInput
+		${[]}                   | ${[]}
+		${['test']}             | ${['test']}
+		${[1, 2, '']}           | ${[1, 3, '']}
+		${[{}]}                 | ${[{}]}
+		${[[]]}                 | ${[[]]}
+		${[true]}               | ${[true]}
+		${[null]}               | ${[undefined]}
+		${[parseInt('blabla')]} | ${[Number.NaN]}
+		${[Symbol('test')]}     | ${[Symbol('test')]}
+		${[() => {}]}           | ${[() => {}]}
+		${[BigInt(1)]}          | ${[BigInt(1)]}
+	`(
+		'does not call console.error in development mode, when given $firstInput, then $secondInput',
+		({ firstInput, secondInput }) => {
+			const originalNodeEnv = process?.env?.NODE_ENV;
+			process.env.NODE_ENV = 'development';
+
+			// Using jest.fn rather than jest.spyOn to prevent the actual console.error method from being called
+			console.error = jest.fn();
+			const { rerender } = renderUseHasInputChangedHook([firstInput]);
+			rerender([secondInput]);
+
+			expect(console.error).not.toHaveBeenCalled();
+
+			process.env.NODE_ENV = originalNodeEnv;
+		}
+	);
 });

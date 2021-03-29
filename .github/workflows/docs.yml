@@ -22,5 +22,3 @@ jobs:
           deploy_key: ${{ secrets.REACTXJS_DOCS }}
           publish_dir: ./docs/.vuepress/dist
           publish_branch: main
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'

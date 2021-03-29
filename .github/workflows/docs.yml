@@ -19,6 +19,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           external_repository: samuel-carnell/reactxjs-docs
-          github_token: ${{ secrets.REACTXJS_DOCS }}
+          deploy_token: ${{ secrets.REACTXJS_DOCS }}
           publish_dir: ./docs/.vuepress/dist
           publish_branch: master

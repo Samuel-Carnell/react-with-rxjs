@@ -11,7 +11,9 @@
     "lint": "eslint \"./{src,app}/**/!(*.test|*.spec).{ts,tsx,js,jsx}\"",
     "test": "jest --coverage",
     "test:watch": "jest --watchAll",
-    "size": "size-limit"
+    "size": "size-limit",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
   },
   "repository": {
     "type": "git",

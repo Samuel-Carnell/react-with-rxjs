@@ -30,7 +30,11 @@ export function useEventObservable<TEvent>(): [event$: Observable<TEvent>, emit:
 
 	const emit: Emit<TEvent> = useCallback((event) => eventSubject.next(event), [eventSubject]);
 
-	const event$ = useFactory(() => eventSubject.asObservable(), [], 'useEventObservable');
+	const event$: Observable<TEvent> = useFactory(
+		() => eventSubject.asObservable(),
+		[],
+		'useEventObservable'
+	);
 
 	return [event$, emit];
 }

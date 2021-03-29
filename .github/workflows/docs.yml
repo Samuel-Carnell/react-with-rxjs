@@ -15,7 +15,7 @@ jobs:
       run: yarn docs:build
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
-       with:
+      with:
         external_repository: samuel-carnell/reactxjs-docs
         github_token: ${{ secrets.REACTXJS_DOCS }}
         publish_dir: ./docs/.vuepress/dist

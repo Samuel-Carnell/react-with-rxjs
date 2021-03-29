@@ -21,4 +21,4 @@ jobs:
           external_repository: samuel-carnell/reactxjs-docs
           deploy_key: ${{ secrets.REACTXJS_DOCS }}
           publish_dir: ./docs/.vuepress/dist
-          publish_branch: master
+          publish_branch: main

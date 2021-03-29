@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - vuepress-github-pages
 
 jobs:
   deploy:

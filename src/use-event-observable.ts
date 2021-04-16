@@ -38,3 +38,11 @@ export function useEventObservable<TEvent>(): [event$: Observable<TEvent>, emit:
 
 	return [event$, emit];
 }
+
+function useStateObservable<TState>(
+	initialState: TState | (() => TState)
+): [
+	state$: Observable<TState>,
+	setState: (state: TState | ((value: TState) => TState)) => void,
+	test: false
+] {}

@@ -23,7 +23,7 @@ import { useSubscription } from './helpers/use-subscription';
  */
 export function useObservableState<TValue, TError = any>(
 	observable: Observable<TValue>
-): [TValue | undefined, TError | undefined, boolean];
+): [value: TValue | undefined, error: TError | undefined, isComplete: boolean];
 
 /**
  * Subscribes to `observable` and returns the latest value it emitted, the latest error it thrown, and a boolean
@@ -46,12 +46,12 @@ export function useObservableState<TValue, TError = any>(
 export function useObservableState<TValue, TError = any>(
 	observable: Observable<TValue>,
 	initialValue: TValue
-): [TValue, TError | undefined, boolean];
+): [value: TValue, error: TError | undefined, isComplete: boolean];
 
 export function useObservableState(
 	observable: Observable<unknown>,
 	initialValue?: unknown
-): [unknown, unknown, boolean] {
+): [value: unknown, error: unknown, isComplete: boolean] {
 	if (!isObservable(observable)) {
 		throw new TypeError(
 			`${observable} is not an Observable. For return value of argument observable in useObservableState`

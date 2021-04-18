@@ -50,7 +50,10 @@ function publishCurrentState$<TState>(
  *
  * `[1]` - A function to set the current state, emitted by the returned observable.
  */
-export function useStateObservable<TState>(): [Observable<TState | undefined>, SetSate<TState>];
+export function useStateObservable<TState>(): [
+	state$: Observable<TState | undefined>,
+	setState: SetSate<TState>
+];
 
 /**
  * Returns observable of the current state and a function to set the current state.
@@ -68,11 +71,11 @@ export function useStateObservable<TState>(): [Observable<TState | undefined>, S
  */
 export function useStateObservable<TState>(
 	initialState: TState | Factory<TState>
-): [Observable<TState>, SetSate<TState>];
+): [state$: Observable<TState>, setState: SetSate<TState>];
 
 export function useStateObservable(
 	initialState?: unknown | Factory<unknown>
-): [Observable<unknown>, SetSate<unknown>] {
+): [state$: Observable<unknown>, setState: SetSate<unknown>] {
 	const valueOrOperatorFn$: Subject<unknown | Operator<unknown>> = useFactory(
 		() => new Subject<unknown | Operator<unknown>>(),
 		[],

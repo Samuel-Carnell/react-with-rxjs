@@ -8,10 +8,6 @@ import { useSubscription } from './helpers/use-subscription';
 type Factory<T> = () => T;
 type Operator<T> = (value: T) => T;
 
-/**
- * A function to set the current state emitted by the observable return from `useStateObservable`
- * @param state A value to set the current state to or a function to calculate the current state from the previous state.
- */
 type SetSate<T> = (state: T | Operator<T>) => void;
 
 function publishCurrentState$<TState>(
@@ -38,33 +34,12 @@ function publishCurrentState$<TState>(
 }
 
 /**
- * Returns observable of the current state and a function to set the current state, with the current state initially set
- * to `undefined`.
- *
- * Alternative to Reacts `useState` hook where the first value in the array returned is an observable
- * representing the current state rather than the value.
- * @typeParam `TState` The type of state emitted by the returned observable and the first parameter of the setState function
- *
- * @returns
- * `[0]` - An observable which replays the current state when subscribed to, then emits when the current state is updated.
- *
- * `[1]` - A function to set the current state, emitted by the returned observable.
+ * Returns observable of the current state and a function to set the current state.
  */
 export function useStateObservable<TState>(): [Observable<TState | undefined>, SetSate<TState>];
 
 /**
  * Returns observable of the current state and a function to set the current state.
- *
- * Alternative to Reacts `useState` hook where the first value in the array returned is an observable
- * representing the current state rather than the value.
- * @typeParam `TState` The type of state emitted by the returned observable and the first parameter of the setState function
- * @param initialState A value to use as the initial state or a factory function to create the initial state.
- *
- * If a factory function is provided then it will only be called when the component is initially mounted.
- * @returns
- * `[0]` - An observable which replays the current state when subscribed to, then emits when the current state is updated.
- *
- * `[1]` - A function to set the current state, emitted by the returned observable.
  */
 export function useStateObservable<TState>(
 	initialState: TState | Factory<TState>

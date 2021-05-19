@@ -1,17 +1,8 @@
-# Guide
-
-## Installation
-
-To install ReactXJS run either of the following comments. Note that this library also requires both react and rxjs to be installed as peer dependencies.
-
-NPM -
-
-```bash
-npm install reactxjs
-```
-
-Yarn -
-
-```bash
-yarn add reactxjs
-```
+---
+home: true
+heroText: ReactXJS
+tagline: React hooks for creating and observing RXJS observables
+actionText: Get Started →
+actionLink: /guide/installation
+footer: MIT License | Copyright (c) 2021 Samuel Carnell
+---

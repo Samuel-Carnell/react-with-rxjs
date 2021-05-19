@@ -4,10 +4,10 @@ module.exports = {
 			title: 'Hooks',
 			sidebarDepth: 0,
 			children: [
+				'/api/hooks/use-observable',
 				'/api/hooks/use-event-observable',
 				'/api/hooks/use-observable-state',
 				'/api/hooks/use-state-observable',
-				'/api/hooks/use-subject',
 				'/api/hooks/use-value-observable',
 			],
 		},

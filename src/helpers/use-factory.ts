@@ -1,17 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useHasInputChanged } from './use-has-input-changed';
 
-/**
- * Uses the provided `factory` to compute the returned value. This value persists across renders, only being recomputed
- * if any of the dependencies change. This function is concurrent mode safe.
- *
- * @typeParam TValue The type of value produced by `factory`.
- * @param factory A function to use to re/compute the returned value.
- * @param dependencies A list of dependencies used by `factory` function.
- * @param rootHookName Optional. The name of the caller hook to use when logging errors. Defaults to `'useFactory'`
- * @returns The value produced by `factory`.
- * @internal
- */
 export function useFactory<TValue>(
 	factory: () => TValue,
 	dependencies: unknown[],

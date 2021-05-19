@@ -4,11 +4,6 @@ import { useFactory } from './helpers/use-factory';
 /**
  * Uses the provided `observableFactory` to compute the returned observable. This observable persists across renders,
  * only being recomputed if any of the dependencies change.
- *
- * @typeParam `TValue` The type of the value emitted by observable returned from `observableFactory`.
- * @param observableFactory Function to use to re/compute the returned observable.
- * @param dependencies Optional. A list of dependencies used by `observableFactory` function.
- * @returns The observable produced by `observableFactory` function.
  */
 export function useObservable<TValue>(
 	observableFactory: () => Observable<TValue>,

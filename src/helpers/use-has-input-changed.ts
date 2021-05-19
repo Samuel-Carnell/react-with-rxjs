@@ -32,13 +32,6 @@ function areInputsDifferent<TInput extends any[]>(
 	return false;
 }
 
-/**
- * Determines if the any of the values in `input` have changed between re-renders.
- * @param input The array of values to check.
- * @param rootHookName Optional. The name of the caller hook to use when logging errors.
- * @returns True if any of the values have been changed between re renders, otherwise false.
- * @internal
- */
 export function useHasInputChanged<TInput extends any[]>(
 	input: TInput,
 	rootHookName = 'useHasInputChanged'

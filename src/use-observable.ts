@@ -3,7 +3,7 @@ import { useFactory } from './helpers/use-factory';
 
 /**
  * Uses the provided `observableFactory` to compute the returned observable. This observable persists across renders,
- * only being recomputed if any of the dependencies change.
+ * only being recomputed if any values in the `dependencies` array change.
  */
 export function useObservable<TObservable extends Observable<unknown>>(
 	observableFactory: () => TObservable,

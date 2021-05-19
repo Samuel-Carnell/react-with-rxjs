@@ -10,17 +10,17 @@ import { useFactory } from './helpers/use-factory';
  * @param dependencies Optional. A list of dependencies used by `observableFactory` function.
  * @returns The observable produced by `observableFactory` function.
  */
-export function useObservable<TValue>(
-	observableFactory: () => Observable<TValue>,
+export function useObservable<TObservable extends Observable<unknown>>(
+	observableFactory: () => TObservable,
 	dependencies: unknown[] = []
-): Observable<TValue> {
+): TObservable {
 	if (!Array.isArray(dependencies)) {
 		throw new TypeError(
 			`${dependencies} is not an Array. For argument dependencies in useObservable`
 		);
 	}
 
-	const observable = useFactory(observableFactory, dependencies, 'useObservable');
+	const observable: TObservable = useFactory(observableFactory, dependencies, 'useObservable');
 
 	if (!isObservable(observable)) {
 		throw new TypeError(

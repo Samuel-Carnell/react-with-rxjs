@@ -1,6 +1,6 @@
 # ReactXJS
 
-ReactXJS provides a collection of hooks for creating and consuming RXJS observables in React.
+React hooks for creating and observing RXJS observables.
 
 ## Installation
 

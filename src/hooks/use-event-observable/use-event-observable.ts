@@ -1,6 +1,6 @@
 import { useCallback, useLayoutEffect } from 'react';
 import { Observable, Subject } from 'rxjs';
-import { useFactory } from './helpers/use-factory';
+import { useFactory } from 'hooks/internal';
 
 type Emit<T> = (event: T) => void;
 

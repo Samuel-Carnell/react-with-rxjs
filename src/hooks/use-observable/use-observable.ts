@@ -1,5 +1,5 @@
 import { isObservable, Observable } from 'rxjs';
-import { useFactory } from './helpers/use-factory';
+import { useFactory } from 'hooks/internal';
 
 /**
  * Uses the provided `observableFactory` to compute the returned observable. This observable persists across renders,

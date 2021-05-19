@@ -1,9 +1,8 @@
 import { useCallback, useLayoutEffect } from 'react';
 import { ConnectableObservable, Observable, OperatorFunction, pipe, Subject } from 'rxjs';
 import { distinctUntilChanged, publishReplay, scan, startWith } from 'rxjs/operators';
-import { useFactory } from './helpers/use-factory';
-import { isFunction } from './helpers/is-function';
-import { useSubscription } from './helpers/use-subscription';
+import { useFactory, useSubscription } from 'hooks/internal';
+import { isFunction } from 'helpers';
 
 type Factory<T> = () => T;
 type Operator<T> = (value: T) => T;

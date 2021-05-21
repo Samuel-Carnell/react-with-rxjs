@@ -6,6 +6,7 @@ module.exports = {
 	},
 	preset: 'ts-jest',
 	moduleFileExtensions: ['ts', 'tsx', 'js'],
+	moduleDirectories: ['<rootDir>/src', 'node_modules'],
 	transformIgnorePatterns: ['/node_modules/'],
 	moduleNameMapper: {
 		'\\.(css|less|scss|sass)$': 'identity-obj-proxy',

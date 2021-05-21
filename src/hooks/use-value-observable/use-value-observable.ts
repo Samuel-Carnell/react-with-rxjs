@@ -1,7 +1,6 @@
 import { useLayoutEffect } from 'react';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { useFactory } from './helpers/use-factory';
-import { useHasInputChanged } from './helpers/use-has-input-changed';
+import { useFactory, useHasInputChanged } from 'hooks/internal';
 
 /**
  * Returns a observable which watches `value` and emits `value` when the component mounts, then when `value` changes between

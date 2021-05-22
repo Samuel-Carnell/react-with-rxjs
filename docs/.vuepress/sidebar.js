@@ -9,6 +9,7 @@ module.exports = {
 				'/api/hooks/use-observable-state',
 				'/api/hooks/use-state-observable',
 				'/api/hooks/use-value-observable',
+				'/api/hooks/use-is-complete',
 			],
 		},
 	],

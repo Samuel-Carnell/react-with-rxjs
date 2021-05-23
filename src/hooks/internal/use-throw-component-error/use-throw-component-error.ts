@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-type SetRenderingError = (error: unknown) => void;
+type ThrowComponentError = (error: unknown) => void;
 
-export function useSetRenderingError(): SetRenderingError {
+export function useThrowComponentError(): ThrowComponentError {
 	const [error, setError] = useState<unknown | undefined>(undefined);
 	if (error !== undefined) {
 		throw error;

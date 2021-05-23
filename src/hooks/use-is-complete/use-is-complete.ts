@@ -1,4 +1,4 @@
-import { useHasInputChanged, useSetRenderingError, useSubscription } from 'hooks/internal';
+import { useHasInputChanged, useThrowComponentError, useSubscription } from 'hooks/internal';
 import { useLayoutEffect, useState } from 'react';
 import { isObservable, Observable } from 'rxjs';
 
@@ -12,7 +12,7 @@ export function useIsComplete(source$: Observable<unknown>): boolean {
 		);
 	}
 
-	const setRenderingError = useSetRenderingError();
+	const throwComponentError = useThrowComponentError();
 	const [isComplete, setIsComplete] = useState<boolean>(false);
 
 	const hasSource$Changed = useHasInputChanged([source$], 'useIsComplete');
@@ -28,7 +28,7 @@ export function useIsComplete(source$: Observable<unknown>): boolean {
 				setIsComplete(true);
 			},
 			error(error: unknown): void {
-				setRenderingError(error);
+				throwComponentError(error);
 			},
 		});
 	}, [source$]);

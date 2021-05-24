@@ -8,7 +8,7 @@ import { isObservable, Observable } from 'rxjs';
 export function useIsComplete(source$: Observable<unknown>): boolean {
 	if (!isObservable(source$)) {
 		throw new TypeError(
-			`${source$} is not an Observable. For return value of argument observable in useObservableState`
+			`${source$} is not an Observable. For return value of argument observable in useIsComplete`
 		);
 	}
 

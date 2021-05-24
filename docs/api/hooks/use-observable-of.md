@@ -1,13 +1,13 @@
 ---
-title: useValueObservable
+title: useObservableOf
 prev: false
 next: false
 ---
 
-## useValueObservable
+## useObservableOf
 
 ```ts
-function useValueObservable<TValue>(value: TValue): Observable<TValue>;
+function useObservableOf<TValue>(value: TValue): Observable<TValue>;
 ```
 
 Returns a observable which watches `value` and emits `value` whenever it changes between re-renders.

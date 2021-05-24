@@ -14,7 +14,7 @@ import { useFactory, useHasInputChanged } from 'hooks/internal';
  *
  * This observable will replay the latest `value` when subscribed to, and complete when the component is unmounted.
  */
-export function useValueObservable<TValue>(value: TValue): Observable<TValue> {
+export function useObservableOf<TValue>(value: TValue): Observable<TValue> {
 	// value is not specified as a dependency so the behavior subject is only created on the first render
 	const value$ = useFactory(() => new BehaviorSubject(value), [], 'useValueObservable');
 	const hasValueChanged = useHasInputChanged([value], 'useValueObservable');

@@ -6,23 +6,26 @@ next: false
 
 ## useObservableOf
 
+Returns an observable which emits `value` on the initial render, and then emit `value` again if it changes in between re-renders.
+
 ```ts
 function useObservableOf<TValue>(value: TValue): Observable<TValue>;
 ```
 
-Returns a observable which watches `value` and emits `value` whenever it changes between re-renders.
+This hook is intended for creating observable from values returned from other in built or third party hooks that don't themselves return observables, such as `useContext`.
 
-This is useful for converting raw values returned from other hooks such as `useContext`, into observables of those
-values.
+### Example
 
-**Type parameters:**
+Below is an examples of this hooks intended usage, using the `useParams` hooks from [React Router](https://github.com/ReactTraining/react-router) and the `useObservable` hook.
 
-- `TValue` The type of value to watch.
+```js
+const { userId } = useParams();
+const userId$ = useObservableOf(userId);
+const user$ = useObservable(() => {
+	return userId$.pipe(map((userId) => fetchUser(userId)));
+}, [userId$]);
+```
 
-**Parameters:**
-
-- `value` The value to watch, and emit when the component mounts, then when `value` changes.
-
-**Returns:**
-Returns a observable which watches `value` and emits `value` whenever it changes between re-renders.
-. This observable will replay the latest `value` when subscribed to, and complete when the component is unmounted.
+:::tip Comparison checking
+Internally this hook uses the `Object.is` function to compare the old and new value, determining if it has changed between re-renders.
+:::

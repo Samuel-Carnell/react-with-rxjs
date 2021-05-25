@@ -6,7 +6,7 @@ next: false
 
 ## useObservableOf
 
-Returns an observable which emits `value` on the initial render, and then emit `value` again if it changes in between re-renders.
+Returns an observable which emits `value` on the initial render, and then emits `value` again if it changes in between re-renders.
 
 ```ts
 function useObservableOf<TValue>(value: TValue): Observable<TValue>;
@@ -16,7 +16,7 @@ This hook is intended for creating observable from values returned from other in
 
 ### Example
 
-Below is an examples of this hooks intended usage, using the `useParams` hooks from [React Router](https://github.com/ReactTraining/react-router) and the `useObservable` hook.
+Below is an example of this hooks intended usage, using the `useParams` hooks from [React Router](https://github.com/ReactTraining/react-router) and the `useObservable` hook.
 
 ```js
 const { userId } = useParams();

@@ -116,43 +116,6 @@ describe('useObservableOf', () => {
 		subscription.unsubscribe();
 	});
 
-	it('returns an observable which completes, when called with undefined, then the returned observable is subscribed to, then the hook is unmounted', () => {
-		const { result, unmount } = renderUseObservableOfHook([undefined]);
-		const state$ = result.current;
-
-		const mockComplete = jest.fn();
-		const subscription = state$.subscribe({ complete: mockComplete });
-		unmount();
-
-		expect(mockComplete).toHaveBeenCalledTimes(1);
-
-		subscription.unsubscribe();
-	});
-
-	it('returns an observable which is not complete, when called with undefined, then the returned observable is subscribed to', () => {
-		const { result } = renderUseObservableOfHook([undefined]);
-		const state$ = result.current;
-
-		const mockComplete = jest.fn();
-		const subscription = state$.subscribe({ complete: mockComplete });
-
-		expect(mockComplete).not.toHaveBeenCalled();
-
-		subscription.unsubscribe();
-	});
-
-	it('returns an observable which completes, when called with undefined, then the hook is unmounted, then the returned observable is subscribed to, ', () => {
-		const { result, unmount } = renderUseObservableOfHook([undefined]);
-		const state$ = result.current;
-		unmount();
-
-		const mockComplete = jest.fn();
-		const subscription = state$.subscribe({ complete: mockComplete });
-		expect(mockComplete).toHaveBeenCalledTimes(1);
-
-		subscription.unsubscribe();
-	});
-
 	it.each`
 		initialValue        | firstValue          | secondValue         | thirdValue          | expectedNumberOfTimes
 		${undefined}        | ${1}                | ${2}                | ${3}                | ${4}

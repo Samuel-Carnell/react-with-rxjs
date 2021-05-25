@@ -6,8 +6,8 @@ import { SubscriptionLike } from 'rxjs';
  * the component unmounts. Only being reestablished if any of the dependencies changes, in which the previous
  * subscription is destroyed.
  */
-export function useSubscription<TSubscription extends SubscriptionLike>(
-	subscriptionFactory: () => TSubscription,
+export function useSubscription(
+	subscriptionFactory: () => SubscriptionLike,
 	dependencies: unknown[]
 ): void {
 	useLayoutEffect(() => {

@@ -23,7 +23,7 @@ If an error is thrown by the source observable then it will be treated as if thr
 :::
 
 :::warning
-Because this hook relies on the `useState` hook, React may batch synchronous updates in order to reduce re-renders. In very rare cases this may cause unexpected results.
+Because internally this hook uses the `useState` hook, synchronous updates may be batched by React in order to reduce re-renders. In very rare cases this may cause unexpected results.
 
 To prevent this the source observable must be modified so that the subscription creation and/or the notification delivery are performed asynchronously. This can be done by calling the `subscribeOn` operator and/or the `observeOn` operator with the `asyncScheduler`. You can find out more on RxJS schedulers [here](https://rxjs.dev/guide/scheduler).
 :::

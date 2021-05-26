@@ -16,7 +16,7 @@ This hook is intended for creating observable from values that are returned from
 
 ### Example
 
-Below is an example of this hook's intended usage, using the `useParams` hooks from [React Router](https://github.com/ReactTraining/react-router) and the `useObservable` hook.
+Below is an example of this hook's intended usage, using the `useParams` hook from [React Router](https://github.com/ReactTraining/react-router) and the `useObservable` hook.
 
 ```js
 const { userId } = useParams();

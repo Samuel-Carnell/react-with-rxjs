@@ -12,11 +12,11 @@ Returns an observable which emits `value` on the initial render, and then emits 
 function useObservableOf<TValue>(value: TValue): Observable<TValue>;
 ```
 
-This hook is intended for creating observable from values returned from other in built or third party hooks that don't themselves return observables, such as `useContext`.
+This hook is intended for creating observable from values that are returned from built-in or third party hooks that don't themselves return observables, such as `useContext`.
 
 ### Example
 
-Below is an example of this hooks intended usage, using the `useParams` hooks from [React Router](https://github.com/ReactTraining/react-router) and the `useObservable` hook.
+Below is an example of this hook's intended usage, using the `useParams` hooks from [React Router](https://github.com/ReactTraining/react-router) and the `useObservable` hook.
 
 ```js
 const { userId } = useParams();

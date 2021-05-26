@@ -21,5 +21,5 @@ export function useObservableOf<TValue>(value: TValue): Observable<TValue> {
 		}
 	});
 
-	return value$.asObservable();
+	return useFactory(() => value$.asObservable(), [value$], 'useObservableOf');
 }

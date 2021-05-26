@@ -11,9 +11,9 @@ export function useObservableOf<TValue>(value: TValue): Observable<TValue> {
 	const value$: BehaviorSubject<TValue> = useFactory(
 		() => new BehaviorSubject(value),
 		[],
-		'useValueObservable'
+		'useObservableOf'
 	);
-	const hasValueChanged = useHasInputChanged([value], 'useValueObservable');
+	const hasValueChanged = useHasInputChanged([value], 'useObservableOf');
 
 	useEffect(() => {
 		if (hasValueChanged) {

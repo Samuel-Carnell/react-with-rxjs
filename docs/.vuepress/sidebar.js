@@ -8,12 +8,8 @@ module.exports = {
 				'/api/hooks/use-event-observable',
 				'/api/hooks/use-observable-state',
 				'/api/hooks/use-state-observable',
-<<<<<<< HEAD
-				'/api/hooks/use-value-observable',
 				'/api/hooks/use-is-complete',
-=======
 				'/api/hooks/use-observable-of',
->>>>>>> master
 			],
 		},
 	],

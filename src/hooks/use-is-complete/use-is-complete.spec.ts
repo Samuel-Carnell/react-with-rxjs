@@ -159,4 +159,45 @@ describe.only('useObservableState', () => {
 		const { result } = renderUseIsComplete([notObservable]);
 		expect(result.error).toBeInstanceOf(TypeError);
 	});
+
+	it('re throws errors thrown by the given observable', () => {
+		const error = new Error();
+		const { result } = renderUseIsComplete([throwError(() => error)]);
+		expect(result.error).toEqual(error);
+	});
+
+	it.each`
+		observable                     | expected
+		${of(1, 2, 3)}                 | ${[false, new Error(), false, true]}
+		${of(false)}                   | ${[false, new Error(), false, true]}
+		${of('a', 'b', 'c', 'd')}      | ${[false, new Error(), false, true]}
+		${EMPTY}                       | ${[false, new Error(), false, true]}
+		${NEVER}                       | ${[false, new Error(), false]}
+		${NEVER.pipe(map(noop))}       | ${[false, new Error(), false]}
+		${throwError(new TypeError())} | ${[false, new Error(), false, new TypeError()]}
+		${throwError('error')}         | ${[false, new Error(), false, 'error']}
+	`(
+		'returns $expected when given an observable which throws an error, then re-rendered with $observable',
+		({ observable, expected }) => {
+			const { result, rerender } = renderUseIsComplete([throwError(() => new Error())]);
+			rerender([observable]);
+			expect(result.all).toEqual(expected);
+		}
+	);
+
+	it.each`
+		observable                                      | expected
+		${scheduled(of('e', 'f', 'g'), asyncScheduler)} | ${[false, new Error(), false, true]}
+		${throwError(new Error(), asyncScheduler)}      | ${[false, new Error(), false, new Error()]}
+	`(
+		'returns $expected when given an observable which throws an error, then re-rendered with $observable',
+		async ({ observable, expected }) => {
+			const { result, rerender, waitForNextUpdate } = renderUseIsComplete([
+				throwError(() => new Error()),
+			]);
+			rerender([observable]);
+			await waitForNextUpdate();
+			expect(result.all).toEqual(expected);
+		}
+	);
 });

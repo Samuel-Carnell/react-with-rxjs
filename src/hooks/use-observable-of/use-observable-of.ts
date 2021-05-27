@@ -3,8 +3,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { useFactory, useHasInputChanged } from 'hooks/internal';
 
 /**
- * Returns an observable which emits `value` on the initial render, and then again if `value` has changed between
- * re-renders.
+ * Returns an observable which emits `value` on the initial render, and then emits `value` again if it changes in
+ * between re-renders.
  */
 export function useObservableOf<TValue>(value: TValue): Observable<TValue> {
 	// value is not specified as a dependency so the behavior subject is only created on the first render

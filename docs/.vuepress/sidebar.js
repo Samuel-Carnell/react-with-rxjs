@@ -8,7 +8,7 @@ module.exports = {
 				'/api/hooks/use-event-observable',
 				'/api/hooks/use-observable-state',
 				'/api/hooks/use-state-observable',
-				'/api/hooks/use-value-observable',
+				'/api/hooks/use-observable-of',
 			],
 		},
 	],

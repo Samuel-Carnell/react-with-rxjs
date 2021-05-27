@@ -7,6 +7,7 @@ import {
 	EMPTY,
 	GroupedObservable,
 	NEVER,
+	noop,
 	Observable,
 	of,
 	ReplaySubject,
@@ -14,6 +15,7 @@ import {
 	Subject,
 	throwError,
 } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { useIsComplete } from './use-is-complete';
 
 type useIsCompleteParams = Parameters<typeof useIsComplete>;
@@ -27,7 +29,7 @@ function renderUseIsComplete(
 	});
 }
 
-describe('useObservableState', () => {
+describe.only('useObservableState', () => {
 	it.each`
 		observable
 		${new Observable()}
@@ -80,14 +82,15 @@ describe('useObservableState', () => {
 		${of(1, 2, 3)}                 | ${[false, true, true, true]}
 		${of(false)}                   | ${[false, true, true, true]}
 		${of('a', 'b', 'c', 'd')}      | ${[false, true, true, true]}
-		${EMPTY}                       | ${[false, true, true, true]}
+		${EMPTY}                       | ${[false, true, true]}
+		${EMPTY.pipe(map(noop))}       | ${[false, true, true, true]}
 		${NEVER}                       | ${[false, true, true, false]}
 		${throwError(new TypeError())} | ${[false, true, true, new TypeError()]}
 		${throwError('error')}         | ${[false, true, true, 'error']}
 	`(
-		'returns $expected when given an observable of [1, 10], then re-rendered with $observable',
+		'returns $expected when given an empty observable, then re-rendered with $observable',
 		({ observable, expected }) => {
-			const { result, rerender } = renderUseIsComplete([of(1, 10)]);
+			const { result, rerender } = renderUseIsComplete([EMPTY]);
 			rerender([observable]);
 			expect(result.all).toEqual(expected);
 		}
@@ -98,9 +101,9 @@ describe('useObservableState', () => {
 		${scheduled(of('e', 'f', 'g'), asyncScheduler)} | ${[false, true, true, false, true]}
 		${throwError(new Error(), asyncScheduler)}      | ${[false, true, true, false, new Error()]}
 	`(
-		'returns $expected when given an observable of [1, 10], then re-rendered with $observable',
+		'returns $expected when given an empty observable, then re-rendered with $observable',
 		async ({ observable, expected }) => {
-			const { result, rerender, waitForNextUpdate } = renderUseIsComplete([of(1, 10)]);
+			const { result, rerender, waitForNextUpdate } = renderUseIsComplete([EMPTY]);
 			rerender([observable]);
 			await waitForNextUpdate();
 			expect(result.all).toEqual(expected);
@@ -114,6 +117,7 @@ describe('useObservableState', () => {
 		${of('a', 'b', 'c', 'd')}      | ${[false, false, true]}
 		${EMPTY}                       | ${[false, false, true]}
 		${NEVER}                       | ${[false, false]}
+		${NEVER.pipe(map(noop))}       | ${[false, false]}
 		${throwError(new TypeError())} | ${[false, false, new TypeError()]}
 		${throwError('error')}         | ${[false, false, 'error']}
 	`(

@@ -1,23 +1,19 @@
 import { Renderer, renderHook, RenderHookResult } from '@testing-library/react-hooks';
 import { Observable } from 'rxjs';
-import { useValueObservable } from './use-value-observable';
+import { useObservableOf } from './use-observable-of';
 
-type useValueObservableParams = Parameters<typeof useValueObservable>;
-type useValueObservableReturn = ReturnType<typeof useValueObservable>;
+type useObservableOfParams = Parameters<typeof useObservableOf>;
+type useObservableOfReturn = ReturnType<typeof useObservableOf>;
 
-function renderUseValueObservableHook(
-	initialParams: useValueObservableParams
-): RenderHookResult<
-	useValueObservableParams,
-	useValueObservableReturn,
-	Renderer<useValueObservableParams>
-> {
-	return renderHook((params: useValueObservableParams) => useValueObservable(...params), {
+function renderUseObservableOfHook(
+	initialParams: useObservableOfParams
+): RenderHookResult<useObservableOfParams, useObservableOfReturn, Renderer<useObservableOfParams>> {
+	return renderHook((params: useObservableOfParams) => useObservableOf(...params), {
 		initialProps: initialParams,
 	});
 }
 
-describe('useValueObservable', () => {
+describe('useObservableOf', () => {
 	it.each`
 		value               | expected
 		${1}                | ${1}
@@ -31,7 +27,7 @@ describe('useValueObservable', () => {
 	`(
 		'returns an observable which replays $expected, when called with $value, then the returned observable is subscribed to',
 		({ value, expected }) => {
-			const { result } = renderUseValueObservableHook([value]);
+			const { result } = renderUseObservableOfHook([value]);
 			const value$ = result.current;
 
 			const mockNext = jest.fn();
@@ -59,7 +55,7 @@ describe('useValueObservable', () => {
 	`(
 		'returns an observable which replays $expected, when called with undefined, then re-rendered with $value twice, then the returned observable is subscribed to',
 		({ value, expected }) => {
-			const { result, rerender } = renderUseValueObservableHook([undefined]);
+			const { result, rerender } = renderUseObservableOfHook([undefined]);
 			const value$ = result.current;
 
 			rerender([value]);
@@ -89,7 +85,7 @@ describe('useValueObservable', () => {
 	`(
 		'returns an observable which emits $expected, when called with undefined, then the returned observable is subscribed to, then re-rendered with $value',
 		({ value, expected }) => {
-			const { result, rerender } = renderUseValueObservableHook([undefined]);
+			const { result, rerender } = renderUseObservableOfHook([undefined]);
 			const value$ = result.current;
 
 			const mockNext = jest.fn();
@@ -105,7 +101,7 @@ describe('useValueObservable', () => {
 	);
 
 	it('returns an observable which only replays once, when called with undefined, then twice re-rendered with the same value, then is the returned observable is subscribed to', () => {
-		const { result, rerender } = renderUseValueObservableHook([undefined]);
+		const { result, rerender } = renderUseObservableOfHook([undefined]);
 		const value$ = result.current;
 
 		rerender([undefined]);
@@ -116,43 +112,6 @@ describe('useValueObservable', () => {
 		});
 
 		expect(mockNext).toHaveBeenCalledTimes(1);
-
-		subscription.unsubscribe();
-	});
-
-	it('returns an observable which completes, when called with undefined, then the returned observable is subscribed to, then the hook is unmounted', () => {
-		const { result, unmount } = renderUseValueObservableHook([undefined]);
-		const state$ = result.current;
-
-		const mockComplete = jest.fn();
-		const subscription = state$.subscribe({ complete: mockComplete });
-		unmount();
-
-		expect(mockComplete).toHaveBeenCalledTimes(1);
-
-		subscription.unsubscribe();
-	});
-
-	it('returns an observable which is not complete, when called with undefined, then the returned observable is subscribed to', () => {
-		const { result } = renderUseValueObservableHook([undefined]);
-		const state$ = result.current;
-
-		const mockComplete = jest.fn();
-		const subscription = state$.subscribe({ complete: mockComplete });
-
-		expect(mockComplete).not.toHaveBeenCalled();
-
-		subscription.unsubscribe();
-	});
-
-	it('returns an observable which completes, when called with undefined, then the hook is unmounted, then the returned observable is subscribed to, ', () => {
-		const { result, unmount } = renderUseValueObservableHook([undefined]);
-		const state$ = result.current;
-		unmount();
-
-		const mockComplete = jest.fn();
-		const subscription = state$.subscribe({ complete: mockComplete });
-		expect(mockComplete).toHaveBeenCalledTimes(1);
 
 		subscription.unsubscribe();
 	});
@@ -173,7 +132,7 @@ describe('useValueObservable', () => {
 	`(
 		'returns an observable which emits $expectedNumberOfTimes times, when called with $initialValue, then the returned observable is subscribed to, then re-rendered with $firstValue, then re-rendered with $secondValue, then re-rendered with $thirdValue',
 		({ initialValue, firstValue, secondValue, thirdValue, expectedNumberOfTimes }) => {
-			const { result, rerender } = renderUseValueObservableHook([initialValue]);
+			const { result, rerender } = renderUseObservableOfHook([initialValue]);
 			const value$ = result.current;
 
 			const mockNext = jest.fn();
@@ -205,7 +164,7 @@ describe('useValueObservable', () => {
 	`(
 		'returns an observable which emits $initialValue, when called with $initialValue, then the returned observable is subscribed to, then re-render with $firstValue, then re-rendered with $secondValue, then re-rendered with $thirdValue',
 		({ initialValue, firstValue, secondValue, thirdValue, expected }) => {
-			const { result, rerender } = renderUseValueObservableHook([initialValue]);
+			const { result, rerender } = renderUseObservableOfHook([initialValue]);
 			const state$ = result.current;
 
 			const mockNext = jest.fn();
@@ -238,7 +197,7 @@ describe('useValueObservable', () => {
 	`(
 		'returns an observable which emits $expectedNumberOfTimes times, when called with $initialValue, then re-rendered with $firstValue, then the returned observable is subscribed to, then re-rendered with $secondValue, then re-rendered with $thirdValue',
 		({ initialValue, firstValue, secondValue, thirdValue, expectedNumberOfTimes }) => {
-			const { result, rerender } = renderUseValueObservableHook([initialValue]);
+			const { result, rerender } = renderUseObservableOfHook([initialValue]);
 			const value$ = result.current;
 
 			rerender([firstValue]);

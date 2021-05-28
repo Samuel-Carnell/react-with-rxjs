@@ -1,6 +1,7 @@
 import { useLayoutEffect, useState } from 'react';
 import { isObservable, Observable } from 'rxjs';
-import { useHasInputChanged, useSubscription } from 'hooks/internal';
+import { useHasInputChanged } from 'hooks/internal';
+import { useSubscription } from 'hooks/use-subscription';
 
 /**
  * Subscribes to `observable` and returns the latest value it emitted, the latest error it thrown, and a boolean

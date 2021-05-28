@@ -17,6 +17,19 @@ function renderUseStateObservableHook(
 }
 
 describe('useStateObservable', () => {
+	it('returns an observable which replays undefined, when called with no arguments, then the return observable is subscribed to', () => {
+		const { result } = renderUseStateObservableHook([] as any);
+		const [state$] = result.current;
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+
+		expect(mockNext).toHaveBeenNthCalledWith(1, undefined);
+
+		subscription.unsubscribe();
+	});
+
 	it.each`
 		initialState        | expected
 		${1}                | ${1}

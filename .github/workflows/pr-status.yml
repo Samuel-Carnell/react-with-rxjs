@@ -1,4 +1,4 @@
-name: Node CI
+name: Check pull request status
 
 on:
   push:
@@ -26,8 +26,8 @@ jobs:
         run: |
           yarn install
           yarn lint
-          yarn test
           yarn build
+          yarn test:coverage
           yarn size
         env:
           CI: true

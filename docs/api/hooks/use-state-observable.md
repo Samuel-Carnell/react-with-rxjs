@@ -6,28 +6,26 @@ next: false
 
 ## useStateObservable
 
-Alternative to Reacts `useState` hook except the first value in the tuple returned is an observable representing the current state rather than the value, and will not trigger an update of the component.
+Returns an observable of the current state (`state$`) and a function to update the current state (`setState`).
 
 ```ts
+function useStateObservable<TState>(): [
+	state$: Observable<TState | undefined>,
+	setState: (state: TState | Operator<TState>) => void
+];
 function useStateObservable<TState>(
 	initialState: TState | (() => TState)
-): [state$: Observable<TState>, setState: (state: TState | ((value: TState) => TState)) => void];
+): [state$: Observable<TState>, setState: (state: TState | Operator<TState>) => void];
 ```
 
-Creates an observable of the current state (`state$`) and a function to set the current state (`setState`).
+The `state$` observable will replay the current state when subscribed, then re emit the current state when it is updated.
 
-When `state$` is subscribed to, it will replay the current state to the subscriber, then emit the state when it is updated through calling `setState`.
+This is designed to act as a direct alternative to React's `useState` hook. Returning an observable of the current state instead of the state its self.
 
-The first argument passed to `setState` accepts the same signature to that of the `setState` function returned from Reacts `useState` hook. It can be either a value to set the current state to or a function to compute the current state from the previous state.
+:::tip
+Like React's `useState` hook, this hook can be given a callback function to compute the initial state, that will only be called on the initial render. Along with this, the returned `setState` function can be called with a reducer function. This reducer function will be automatically called with the current state and the returned value will be used as the new state.
+:::
 
-**Type parameters:**
-
-- `TState` The type of state emitted by `state$` and the first parameter of `setState`.
-
-**Parameters:**
-
-- `initialState` A value to use as the initial state or a factory function to create the initial state.
-
-**Returns:**
-
-A tuple containing an observable of the current state (`state$`) and a function to set the current state (`setState`).
+:::tip Shorthand Alias
+This hook can be called with the shorthand alias `useState$`.
+:::

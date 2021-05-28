@@ -34,7 +34,7 @@ function publishCurrentState$<TState>(
 }
 
 /**
- * Returns observable of the current state and a function to set the current state.
+ * Returns an observable of the current state (`state$`) and a function to update the current state (`setState`).
  */
 export function useStateObservable<TState>(): [
 	state$: Observable<TState | undefined>,
@@ -42,7 +42,7 @@ export function useStateObservable<TState>(): [
 ];
 
 /**
- * Returns observable of the current state and a function to set the current state.
+ * Returns an observable of the current state (`state$`) and a function to update the current state (`setState`).
  */
 export function useStateObservable<TState>(
 	initialState: TState | Factory<TState>

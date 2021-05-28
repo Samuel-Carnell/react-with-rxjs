@@ -27,5 +27,5 @@ Like React's `useState` hook, this hook can be given a callback function to comp
 :::
 
 :::tip Shorthand Alias
-This hook can also be called with a shorthand alias `useState$`.
+This hook can be called with the shorthand alias `useState$`.
 :::

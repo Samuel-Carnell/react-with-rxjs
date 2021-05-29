@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { BehaviorSubject, isObservable, Observable } from 'rxjs';
 
 function isBehaviorSubject(source$: Observable<unknown>): source$ is BehaviorSubject<unknown> {
-	return 'value' in source$;
+	return 'getValue' in source$;
 }
 
 export function useLatestValue<TValue>(source$: BehaviorSubject<TValue>): TValue;
@@ -20,13 +20,13 @@ export function useLatestValue(source$: Observable<unknown>): unknown {
 
 	const throwComponentError = useThrowComponentError();
 	const [latestValue, setLatestValue] = useState(() => {
-		return isBehaviorSubject(source$) ? source$.value : undefined;
+		return isBehaviorSubject(source$) ? source$.getValue() : undefined;
 	});
 
 	useSubscription(() => {
 		return source$.subscribe({
 			next(value: unknown) {
-				setLatestValue(value);
+				setLatestValue(() => value);
 			},
 			error(error: unknown): void {
 				throwComponentError(error);

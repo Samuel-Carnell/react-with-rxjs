@@ -1,7 +1,7 @@
 import { useThrowComponentError } from 'hooks/internal';
 import { useSubscription } from 'hooks/use-subscription';
 import { useState } from 'react';
-import { BehaviorSubject, isObservable, Observable, ReplaySubject } from 'rxjs';
+import { BehaviorSubject, isObservable, Observable } from 'rxjs';
 
 function isBehaviorSubject(source$: Observable<unknown>): source$ is BehaviorSubject<unknown> {
 	return 'getValue' in source$;

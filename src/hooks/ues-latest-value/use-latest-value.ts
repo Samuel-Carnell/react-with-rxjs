@@ -1,14 +1,20 @@
 import { useThrowComponentError } from 'hooks/internal';
 import { useSubscription } from 'hooks/use-subscription';
 import { useState } from 'react';
-import { BehaviorSubject, isObservable, Observable } from 'rxjs';
+import { BehaviorSubject, isObservable, Observable, ReplaySubject } from 'rxjs';
 
 function isBehaviorSubject(source$: Observable<unknown>): source$ is BehaviorSubject<unknown> {
 	return 'getValue' in source$;
 }
 
+/**
+ * Subscribes to `source$` and returns/yields the latest emitted value, re-rendering the component when `source$` emits a new value.
+ */
 export function useLatestValue<TValue>(source$: BehaviorSubject<TValue>): TValue;
 
+/**
+ * Subscribes to `source$` and returns/yields the latest emitted value, re-rendering the component when `source$` emits a new value.
+ */
 export function useLatestValue<TValue>(source$: Observable<TValue>): TValue | undefined;
 
 export function useLatestValue(source$: Observable<unknown>): unknown {

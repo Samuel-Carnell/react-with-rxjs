@@ -6,7 +6,7 @@ next: false
 
 ## useObservableOf
 
-Returns an observable which emits `value` on the initial render, and then emits `value` again if it changes in between re-renders.
+Returns an observable persisting across renders. Emitting `value` on the initial render, then emitting `value` again if it has changed in between re-renders.
 
 ```ts
 function useObservableOf<TValue>(value: TValue): Observable<TValue>;

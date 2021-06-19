@@ -31,7 +31,7 @@ export function useLatestValue(source$: Observable<unknown>): unknown {
 
 	useSubscription(() => {
 		return source$.subscribe({
-			next(value: unknown) {
+			next(value: unknown): void {
 				setLatestValue(() => value);
 			},
 			error(error: unknown): void {

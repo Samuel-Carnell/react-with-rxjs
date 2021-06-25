@@ -6,7 +6,7 @@ module.exports = {
 			children: [
 				'/api/hooks/use-observable',
 				'/api/hooks/use-event-observable',
-				'/api/hooks/use-observable-state',
+				'/api/hooks/use-latest-value',
 				'/api/hooks/use-state-observable',
 				'/api/hooks/use-is-complete',
 				'/api/hooks/use-latest-value',

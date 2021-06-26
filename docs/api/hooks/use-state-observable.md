@@ -18,9 +18,7 @@ function useStateObservable<TState>(
 ): [state$: Observable<TState>, setState: (state: TState | Operator<TState>) => void];
 ```
 
-The returned `state$` observable will persist across renders and through out the components lifecycle, never being recomputed.
-
-The `state$` observable will replay the current state when subscribed, then re emit the current state when it is updated.
+Once the returned `state$` observable is created it will persist across the components lifecycle. Similar to a BehaviorSubject its values are multicasted to each observer and whenever a new Observer subscribes to the observable, the observer immediately receives the current state. It will persist across the components lifecycle.
 
 This is designed to act as a direct alternative to React's `useState` hook. Returning an observable of the current state instead of the state its self.
 

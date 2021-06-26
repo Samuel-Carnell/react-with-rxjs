@@ -6,18 +6,25 @@ next: false
 
 ## useEventObservable
 
+Returns a observable of events (`events$`) and a function to emit a new event (`emit`).
+
 ```ts
-function useEventObservable<TEvent>(): [event$: Observable<TEvent>, emit: Emit<TEvent>];
+function useEventObservable<TEvent>(): [events$: Observable<TEvent>, emit: Emit<TEvent>];
 ```
 
-Creates an observable of events (`event$`) and a function to emit a new event (`emit`).
+Similar to [useStateObservable](/api/hooks/use-state-observable) the returned `event$` observable will persist across the components lifecycle. Like a rxjs [Subject](https://rxjs.dev/api/index/class/Subject), it's values are multicasted amongst its observers.
 
-Whenever the `emit` is called, `event$` will emit the event passed.
+### Example
 
-**Type parameters:**
+Example with [useSubscription](/api/hooks/use-subscription)
 
-- `TEvent` The type of event emitted by `event$` and the first parameter of `emit`.
+```jsx
+const [click$, onClick] = useEventObservable();
+useSubscription({
+	next() {
+		console.log('I was clicked');
+	},
+});
 
-**Returns:**
-
-A tuple containing an observable of events (`event$`) and a function to emit a new event (`emit`).
+<button click={onClick} />;
+```

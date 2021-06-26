@@ -16,7 +16,7 @@ Similar to [useStateObservable](/api/hooks/use-state-observable) the returned `e
 
 ### Example
 
-Example with [useSubscription](/api/hooks/use-subscription)
+Example with [useSubscription](/api/hooks/use-subscription).
 
 ```jsx
 const [click$, onClick] = useEventObservable();

@@ -12,7 +12,7 @@ Returns an observable of events (`events$`) and a function to emit a new event (
 function useEventObservable<TEvent>(): [events$: Observable<TEvent>, emit: Emit<TEvent>];
 ```
 
-Like RxJS' [Subjects](https://rxjs.dev/api/index/class/Subject), whenever a new observer subscribes to the returned `event$` observable, the observer listens for new events to be emitted. The instance of the observable will also persist across the components lifecycle to avoid issue with consumer hooks subscribing to a new instance on each render.
+Like RxJS' [Subjects](https://rxjs.dev/api/index/class/Subject), whenever a new observer subscribes to the returned `events$` observable, the observer listens for new events to be emitted. The instance of the observable will also persist across the components lifecycle to avoid issues with consumer hooks subscribing to a new instance on each render.
 
 ### Example
 

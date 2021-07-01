@@ -15,7 +15,7 @@ function useObservable<TObservable extends Observable<unknown>>(
 ): TObservable;
 ```
 
-This hook is essentially an observable specific version of `useMemo`, in that it will only recompute the observable when one of the dependencies have changed. However, unlike `useMemo` it is guaranteed to always return the same observable reference if none of the dependencies have changed, never "forgetting" a previously computed observable. This is behaviour is crucial as recreating the observable will cause any hooks which subscribes to it to establish a new subscription leading to unpredictable results.
+This hook is essentially an observable specific version of `useMemo`, in that it will only recompute the observable when the dependencies have changed. However, unlike `useMemo` it is guaranteed to always return the same observable reference if none of the dependencies have changed, never "forgetting" a previously computed observable. This is behaviour is crucial as recreating the observable will cause any hooks which subscribes to it to establish a new subscription leading to unpredictable results.
 
 :::tip
 The dependencies array should be used to specify all closure variables the `observableFactory` uses.

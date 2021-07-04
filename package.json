@@ -2,8 +2,8 @@
   "name": "react-with-rxjs",
   "version": "2.0.0",
   "description": "Project template for a React library",
-  "main": "react-lib.umd.js",
-  "module": "react-lib.esm.js",
+  "main": "index.umd.js",
+  "module": "index.esm.js",
   "private": "true",
   "typings": "index.d.ts",
   "scripts": {
@@ -22,18 +22,18 @@
   },
   "keywords": [
     "react",
-    "library"
+    "hooks",
+    "observable",
+    "rxjs",
+    "async"
   ],
   "author": {
-    "name": "Denys Vuika",
-    "email": "denys.vuika@gmail.com",
-    "url": "https://denys.dev"
+    "name": "Samuel Carnell",
+    "email": "samuel.carnell@outlook.com",
+    "url": "https://github.com/Samuel-Carnell"
   },
   "license": "MIT",
   "homepage": "https://samuel-carnell.github.io/react-with-rxjs-docs/",
-    "url": "https://github.com/DenysVuika/react-lib/issues"
-  },
-  "homepage": "https://github.com/DenysVuika/react-lib#readme",
   "devDependencies": {
     "@size-limit/preset-small-lib": "^5.0.1",
     "@testing-library/jest-dom": "^5.14.1",

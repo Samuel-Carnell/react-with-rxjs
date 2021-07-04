@@ -37,6 +37,6 @@ Given that RXJS uses a push based architecture, it doesn't matter when the selec
 
 With the introduction of concurrent mode, React can work on several renders concurrently. These renders take an unpredictable amount of time to complete or can be abandoned completely.
 
-To ensure ReactXJS is compatible with React concurrent mode, observables must be subscribed to as a side effect of the rendering process. So that only a single subscription is established after the render is committed to the screen.
+To ensure this package is compatible with React concurrent mode, observables must be subscribed to as a side effect of the rendering process. So that only a single subscription is established after the render is committed to the screen.
 
-The consequence of this is that the `useLatestValue` hook must return a default value on the initial render, even if the observable emits values synchronously. In cases where the source observable does emit values synchronously ReactXJS will prevent any screen tearing, however the hook must still return a default value.
+The consequence of this is that the `useLatestValue` hook must return a default value on the initial render, even if the observable emits values synchronously. In cases where the source observable does emit values synchronously this hook will prevent any screen tearing, however it must still return a default value.

@@ -1,23 +1,23 @@
-# ReactXJS
+# React with RxJS
 
-React hooks for creating and observing RXJS observables.
+A set of hooks, HOCs, and components for creating and consuming RxJS observables.
 
 ## Installation
 
-To install ReactXJS run either of the following comments. Note that this library also requires both react and rxjs to be installed as peer dependencies.
+Run either of following commands depending on your package manager. Both [RxJS](https://www.npmjs.com/package/rxjs) and [React](https://www.npmjs.com/package/react) are required as peer dependencies.
 
 NPM -
 
 ```bash
-npm install reactxjs
+npm install react-with-rxjs
 ```
 
 Yarn -
 
 ```bash
-yarn add reactxjs
+yarn add react-with-rxjs
 ```
 
 ## Usage
 
-Visit the documentation at https://samuel-carnell.github.io/reactxjs-docs/
+Full documentation can be found [here](https://samuel-carnell.github.io/react-with-rxjs-docs/)

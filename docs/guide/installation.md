@@ -4,20 +4,16 @@ title: Installation
 
 # Installation
 
-To install ReactXJS run either of the following commands depending on your package manager.
+Run either of following commands depending on your package manager. Both [RxJS](https://www.npmjs.com/package/rxjs) and [React](https://www.npmjs.com/package/react) are required as peer dependencies.
 
-::: warning
-Both React and RXJS must be installed as peer dependencies
-:::
-
-### NPM
+NPM -
 
 ```bash
-npm install reactxjs
+npm install react-with-rxjs
 ```
 
-### Yarn
+Yarn -
 
 ```bash
-yarn add reactxjs
+yarn add react-with-rxjs
 ```

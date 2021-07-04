@@ -24,5 +24,23 @@ Before using this hook check that your use case isn't already covered by [useLat
 :::
 
 :::warning
-Similar to the `useEffect` hook, the length of the dependencies array should stay the same across re-renders. Changes in the length of the array could lead to un-predictable results.
+Similar to the `useEffect` hook, the length of the dependencies array should stay the same across re-renders. Changes in the length of the array could lead to unpredictable results.
 :::
+
+### Example
+
+Example with [useEventObservable](/api/hooks/use-event-observable).
+
+```jsx
+// Create an observable of click events and a function to emit a click event
+const [click$, onClick] = useEventObservable();
+
+// Listen for and log click events
+useSubscription({
+	next() {
+		console.log('I was clicked');
+	},
+});
+
+<button click={onClick} />;
+```

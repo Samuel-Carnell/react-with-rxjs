@@ -5,9 +5,9 @@ import { useFactory } from 'hooks/internal';
 type Emit<T> = (event: T) => void;
 
 /**
- * Returns an observable of events, and a function to emit a new event.
+ * Returns an observable of events (`events$`) and a function to emit a new event (`emit`).
  */
-export function useEventObservable<TEvent>(): [event$: Observable<TEvent>, emit: Emit<TEvent>] {
+export function useEventObservable<TEvent>(): [events$: Observable<TEvent>, emit: Emit<TEvent>] {
 	const eventSubject: Subject<TEvent> = useFactory(
 		() => new Subject<TEvent>(),
 		[],
@@ -20,11 +20,11 @@ export function useEventObservable<TEvent>(): [event$: Observable<TEvent>, emit:
 
 	const emit: Emit<TEvent> = useCallback((event) => eventSubject.next(event), [eventSubject]);
 
-	const event$: Observable<TEvent> = useFactory(
+	const events$: Observable<TEvent> = useFactory(
 		() => eventSubject.asObservable(),
 		[],
 		'useEventObservable'
 	);
 
-	return [event$, emit];
+	return [events$, emit];
 }

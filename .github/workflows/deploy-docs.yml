@@ -17,7 +17,7 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
-          external_repository: samuel-carnell/reactxjs-docs
+          external_repository: samuel-carnell/react-with-rxjs-docs
           deploy_key: ${{ secrets.REACTXJS_DOCS }}
           publish_dir: ./docs/.vuepress/dist
           publish_branch: main

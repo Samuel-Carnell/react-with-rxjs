@@ -1,11 +1,11 @@
 [
 	{
-		"path": "dist/react-lib.esm.js",
+		"path": "dist/index.esm.js",
 		"limit": "10 KB",
 		"webpack": false
 	},
 	{
-		"path": "dist/react-lib.umd.js",
+		"path": "dist/index.umd.js",
 		"limit": "10 KB",
 		"webpack": false
 	}

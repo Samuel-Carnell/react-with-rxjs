@@ -17,7 +17,7 @@ This hook will return an observable which emits `value` on the initial render, t
 This hook is intended for creating observable from values that are returned from built-in or third party hooks that don't themselves return observables, such as `useContext`.
 
 :::tip Comparison checking
-Internally this hook uses the `Object.is` function to compare the old and new value, determining if it has changed between re-renders.
+Internally this hook uses the `Object.is` function to compare the old and new values, determining if it has changed between re-renders.
 :::
 
 ### Example

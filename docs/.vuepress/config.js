@@ -1,10 +1,10 @@
 const sidebar = require('./sidebar');
 
 module.exports = {
-	title: 'ReactXJS',
-	base: '/reactxjs-docs/',
+	title: 'React with RxJS',
+	base: '/react-with-rxjs-docs/',
 	themeConfig: {
-		repo: 'samuel-carnell/reactxjs',
+		repo: 'samuel-carnell/react-with-rxjs',
 		editLinks: false,
 		nav: [
 			{ text: 'Guide', link: '/guide/core-concepts' },

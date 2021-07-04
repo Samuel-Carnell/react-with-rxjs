@@ -1,5 +1,5 @@
 {
-  "name": "react-lib",
+  "name": "react-with-rxjs",
   "version": "2.0.0",
   "description": "Project template for a React library",
   "main": "react-lib.umd.js",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DenysVuika/react-lib.git"
+    "url": "git+https://github.com/Samuel-Carnell/react-with-rxjs.git"
   },
   "keywords": [
     "react",
@@ -30,7 +30,7 @@
     "url": "https://denys.dev"
   },
   "license": "MIT",
-  "bugs": {
+  "homepage": "https://samuel-carnell.github.io/react-with-rxjs-docs/",
     "url": "https://github.com/DenysVuika/react-lib/issues"
   },
   "homepage": "https://github.com/DenysVuika/react-lib#readme",

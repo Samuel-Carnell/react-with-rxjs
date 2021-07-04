@@ -1,6 +1,6 @@
 ---
 home: true
-heroText: ReactXJS
+heroText: React with RxJS
 tagline: React hooks for creating and observing RXJS observables
 actionText: Get Started →
 actionLink: /guide/installation

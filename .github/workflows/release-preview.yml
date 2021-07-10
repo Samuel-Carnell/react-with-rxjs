@@ -1,3 +1,5 @@
+name: Preview Release
+
 on:
   pull_request:
     branches:
@@ -23,7 +25,7 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          yarn docs:build
+          yarn build
       - name: Publish
         working-directory: ./dist
         env:

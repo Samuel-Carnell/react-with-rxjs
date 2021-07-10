@@ -7,7 +7,28 @@ import generatePackageJson from 'rollup-plugin-generate-package-json';
 import pkg from './package.json';
 import { resolve } from 'path';
 
-const peerDependencies = pkg.config.lib.peerDependencies;
+const peerDependencies = pkg.config.lib.peerDependencies.reduce((peerDependencies, packageName) => {
+	if (Object.keys(pkg.dependencies).includes(packageName)) {
+		return {
+			...peerDependencies,
+			[packageName]: pkg.dependencies[packageName],
+		};
+	}
+
+	if (Object.keys(pkg.devDependencies).includes(packageName)) {
+		return {
+			...peerDependencies,
+			[packageName]: pkg.devDependencies[packageName],
+		};
+	}
+
+	console.warn(
+		'Cannot include ' + packageName + ' as a peer dependency. Unable to find package version.'
+	);
+	return peerDependencies;
+}, {});
+
+console.log('Generated peer dependencies:\n' + JSON.stringify(peerDependencies));
 
 export default [
 	{

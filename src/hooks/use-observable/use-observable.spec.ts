@@ -3,7 +3,6 @@ import {
 	AsyncSubject,
 	BehaviorSubject,
 	ConnectableObservable,
-	GroupedObservable,
 	Observable,
 	ReplaySubject,
 	Subject,
@@ -27,7 +26,6 @@ describe('useObservable', () => {
 		observable
 		${new Observable()}
 		${new ConnectableObservable(new Observable(), () => new Subject())}
-		${new GroupedObservable('', new Subject())}
 		${new Subject()}
 		${new BehaviorSubject('')}
 		${new ReplaySubject(0)}

@@ -1,0 +1,60 @@
+name: Release
+on:
+  push:
+    branches:
+      - master
+jobs:
+  publish-package:
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    name: Publish package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Build
+        run: |
+          yarn install --frozen-lockfile
+          yarn docs:build
+      - name: Publish
+        working-directory: ./dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npx semantic-release
+
+  publish-docs:
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    name: Publish documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Build
+        run: |
+          yarn install --frozen-lockfile
+          yarn docs:build
+      - name: Publish
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          external_repository: samuel-carnell/react-with-rxjs-docs
+          deploy_key: ${{ secrets.REACTXJS_DOCS }}
+          publish_dir: ./docs/.vuepress/dist
+          publish_branch: main

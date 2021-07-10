@@ -5,7 +5,6 @@ import {
 	BehaviorSubject,
 	ConnectableObservable,
 	EMPTY,
-	GroupedObservable,
 	NEVER,
 	noop,
 	Observable,
@@ -35,7 +34,6 @@ describe.only('useLatestValue', () => {
 		observable
 		${new Observable()}
 		${new ConnectableObservable(new Observable(), () => new Subject())}
-		${new GroupedObservable('', new Subject())}
 		${new Subject()}
 		${new ReplaySubject(0)}
 		${new AsyncSubject()}

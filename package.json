@@ -1,6 +1,6 @@
 {
   "name": "react-with-rxjs",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "A set of hooks, HOCs, and components for creating and consuming RxJS observables.",
   "main": "index.umd.js",
   "module": "index.esm.js",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Samuel-Carnell/react-with-rxjs.git"
+    "url": "https://github.com/Samuel-Carnell/react-with-rxjs.git"
   },
   "keywords": [
     "react",
@@ -70,7 +70,10 @@
   },
   "config": {
     "lib": {
-      "peerDependencies": ["react", "rxjs"]
+      "peerDependencies": [
+        "react",
+        "rxjs"
+      ]
     }
   },
   "dependencies": {},

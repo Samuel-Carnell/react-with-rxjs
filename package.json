@@ -1,7 +1,7 @@
 {
   "name": "react-with-rxjs",
-  "version": "2.0.0",
-  "description": "Project template for a React library",
+  "version": "1.0.0",
+  "description": "A set of hooks, HOCs, and components for creating and consuming RxJS observables.",
   "main": "index.umd.js",
   "module": "index.esm.js",
   "private": "true",

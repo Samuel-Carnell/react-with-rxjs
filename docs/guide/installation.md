@@ -4,7 +4,7 @@ title: Installation
 
 # Installation
 
-Run either of following commands depending on your package manager. Both [RxJS](https://www.npmjs.com/package/rxjs) and [React](https://www.npmjs.com/package/react) are required as peer dependencies.
+Run either of the following commands depending on your package manager. Both [RxJS](https://www.npmjs.com/package/rxjs) and [React](https://www.npmjs.com/package/react) are required as peer dependencies.
 
 NPM -
 

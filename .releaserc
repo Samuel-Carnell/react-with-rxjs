@@ -1,5 +1,6 @@
 {
 	"branches": [
-		"develop"
-	]
+		"release"
+	],
+	"baseBranch": "develop"
 }

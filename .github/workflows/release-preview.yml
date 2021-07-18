@@ -27,7 +27,6 @@ jobs:
           yarn install --frozen-lockfile
           yarn build
       - name: Publish
-        working-directory: ./dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

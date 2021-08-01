@@ -1,5 +1,8 @@
 {
 	"branches": [
 		"develop"
-	]
+	],
+	"publishConfig": {
+		"pkgRoot": "./dist"
+	}
 }

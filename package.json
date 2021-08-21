@@ -4,7 +4,6 @@
   "description": "A set of hooks, HOCs, and components for creating and consuming RxJS observables.",
   "main": "index.umd.js",
   "module": "index.esm.js",
-  "private": "true",
   "typings": "index.d.ts",
   "scripts": {
     "build": "rollup -c",

@@ -7,53 +7,74 @@ import generatePackageJson from 'rollup-plugin-generate-package-json';
 import pkg from './package.json';
 import { resolve } from 'path';
 
-const peerDependencies = pkg.config.lib.peerDependencies;
+const peerDependencies = pkg.config.lib.peerDependencies.reduce((peerDependencies, packageName) => {
+	if (Object.keys(pkg.dependencies).includes(packageName)) {
+		return {
+			...peerDependencies,
+			[packageName]: pkg.dependencies[packageName],
+		};
+	}
+
+	if (Object.keys(pkg.devDependencies).includes(packageName)) {
+		return {
+			...peerDependencies,
+			[packageName]: pkg.devDependencies[packageName],
+		};
+	}
+
+	console.warn(
+		'Cannot include ' + packageName + ' as a peer dependency. Unable to find package version.'
+	);
+	return peerDependencies;
+}, {});
+
+console.log('Generated peer dependencies:\n' + JSON.stringify(peerDependencies));
 
 export default [
-  {
-    input: 'src/index.tsx',
-    external: ['react'],
-    plugins: [
-      del({ targets: 'dist/*' }),
-      typescript({
-        typescript: require('typescript'),
-      }),
-      postcss({
-        modules: true,
-        plugins: [],
-        extract: resolve(`dist/${pkg.name}.css`),
-      }),
-      copy({
-        targets: [
-          { src: 'README.md', dest: 'dist' },
-          { src: 'CHANGELOG.md', dest: 'dist' },
-        ],
-      }),
-      generatePackageJson({
-        baseContents: (pkg) => ({
-          ...pkg,
-          name: pkg.name,
-          scripts: undefined,
-          dependencies: {},
-          devDependencies: {},
-          peerDependencies,
-          private: true,
-          config: undefined,
-        }),
-      }),
-      terser(),
-    ],
-    output: [
-      {
-        name: pkg.name,
-        file: `dist/${pkg.main}`,
-        format: 'umd',
-        globals: {
-          react: 'react',
-        },
-        sourcemap: true,
-      },
-      { file: `dist/${pkg.module}`, format: 'es', sourcemap: true },
-    ],
-  },
+	{
+		input: 'src/index.ts',
+		external: ['react', 'rxjs', 'rxjs/operators'],
+		plugins: [
+			del({ targets: 'dist/*' }),
+			typescript({
+				typescript: require('typescript'),
+			}),
+			postcss({
+				modules: true,
+				plugins: [],
+				extract: resolve(`dist/${pkg.name}.css`),
+			}),
+			copy({
+				targets: [
+					{ src: 'README.md', dest: 'dist' },
+					{ src: 'CHANGELOG.md', dest: 'dist' },
+				],
+			}),
+			generatePackageJson({
+				baseContents: (pkg) => ({
+					...pkg,
+					name: pkg.name,
+					scripts: undefined,
+					dependencies: {},
+					devDependencies: {},
+					peerDependencies,
+					private: true,
+					config: undefined,
+				}),
+			}),
+			terser(),
+		],
+		output: [
+			{
+				name: pkg.name,
+				file: `dist/${pkg.main}`,
+				format: 'umd',
+				globals: {
+					react: 'react',
+				},
+				sourcemap: true,
+			},
+			{ file: `dist/${pkg.module}`, format: 'es', sourcemap: true },
+		],
+	},
 ];

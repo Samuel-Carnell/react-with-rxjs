@@ -1,6 +1,6 @@
 {
 	"branches": [
-		"develop"
+		"develop", "release"
 	],
 	"publishConfig": {
 		"pkgRoot": "./dist"

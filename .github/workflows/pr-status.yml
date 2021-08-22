@@ -2,12 +2,13 @@ name: Verify Pull Request
 
 on:
   pull_request:
+    types: [edited]
     branches:
       - release
       - develop
 jobs:
   verify-code:
-    name: Verify code
+    name: Verify Code
     runs-on: ubuntu-latest
 
     strategy:
@@ -32,6 +33,7 @@ jobs:
           CI: true
 
   verify-title:
+    name: Verify Title
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1

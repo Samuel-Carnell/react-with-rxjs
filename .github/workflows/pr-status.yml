@@ -6,7 +6,8 @@ on:
       - release
       - develop
 jobs:
-  build:
+  verify-code:
+    name: Verify code
     runs-on: ubuntu-latest
 
     strategy:
@@ -29,3 +30,16 @@ jobs:
           yarn size
         env:
           CI: true
+
+  verify-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install
+        run: yarn install --frozen-lock
+      - name: Run commitlint against PR title
+        run: echo "${{ github.event.pull_request.title }}" | yarn commitlint

@@ -15,7 +15,8 @@
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
     "release": "semantic-release",
-    "release:preview": "semantic-release --branches develop --dry-run"
+    "release:preview": "semantic-release --branches develop --dry-run",
+    "commitlint": "commitlint"
   },
   "repository": {
     "type": "git",
@@ -77,6 +78,9 @@
       ]
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "@commitlint/cli": "^13.1.0",
+    "@commitlint/config-angular": "^13.1.0"
+  },
   "peerDependencies": {}
 }

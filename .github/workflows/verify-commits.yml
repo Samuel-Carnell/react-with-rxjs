@@ -7,11 +7,10 @@ on:
       - develop
 
 jobs:
-  strategy:
-    matrix:
-      node-version: [12.x]
-
   verify-commits:
+    strategy:
+      matrix:
+        node-version: [12.x]
     name: Verify commit style
     runs-on: ubuntu-latest
     steps:

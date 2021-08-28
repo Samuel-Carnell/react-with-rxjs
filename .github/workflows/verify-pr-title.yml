@@ -1,0 +1,21 @@
+name: Verify Pull Request Title
+
+on:
+  pull_request:
+    types: [opened, reopened, edited]
+    branches:
+      - develop
+
+  verify-title:
+    name: Verify Title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install
+        run: yarn install --frozen-lock
+      - name: Run commitlint against PR title
+        run: yarn commitlint <<< "${{ github.event.pull_request.title }}"

@@ -22,4 +22,4 @@ jobs:
       - name: Install
         run: yarn install --frozen-lock
       - name: Run commitlint on commits
-        run: yarn commitlint --from $(git merge-base ${{ github.base_ref }} ${{ github.head_ref }}) -to $(git rev-parse ${{ github.head_ref }})
+        run: yarn commitlint --from $(git merge-base ${{ github.base_ref }} ${{ github.head_ref }}) --to $(git rev-parse ${{ github.head_ref }})

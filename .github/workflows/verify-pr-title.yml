@@ -9,8 +9,8 @@ on:
 jobs:
   verify-title:
     strategy:
-    matrix:
-      node-version: [12.x]
+      matrix:
+        node-version: [12.x]
 
     name: Verify Title
     runs-on: ubuntu-latest

@@ -1,4 +1,4 @@
-name: Verify Pull Request
+name: Verify Pull Request Code
 
 on:
   pull_request:
@@ -6,7 +6,8 @@ on:
       - release
       - develop
 jobs:
-  build:
+  verify-code:
+    name: Verify Code
     runs-on: ubuntu-latest
 
     strategy:

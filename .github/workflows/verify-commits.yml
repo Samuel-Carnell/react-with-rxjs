@@ -24,4 +24,4 @@ jobs:
         env:
           BASE_REF: origin/${{ github.base_ref }}
           HEAD_REF: origin/${{ github.head_ref }}
-        run: yarn commitlint --from $(git merge-base --independent ${{ env.BASE_REF }} ${{ env.HEAD_REF }}) --to $(git rev-parse ${{ env.HEAD_REF }})
+        run: yarn commitlint --from $(git merge-base --octopus ${{ env.BASE_REF }} ${{ env.HEAD_REF }}) --to $(git rev-parse ${{ env.HEAD_REF }})

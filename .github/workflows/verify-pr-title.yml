@@ -7,11 +7,11 @@ on:
       - develop
 
 jobs:
-  strategy:
+  verify-title:
+    strategy:
     matrix:
       node-version: [12.x]
 
-  verify-title:
     name: Verify Title
     runs-on: ubuntu-latest
     steps:

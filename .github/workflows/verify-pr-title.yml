@@ -2,7 +2,7 @@ name: Verify Pull Request Title
 
 on:
   pull_request:
-    types: [opened, reopened, edited, synchronized]
+    types: [opened, reopened, edited, synchronize]
     branches:
       - develop
 

@@ -21,4 +21,7 @@ jobs:
       - name: Install
         run: yarn install --frozen-lock
       - name: Run commitlint on commits
-        run: yarn commitlint --from $(git merge-base origin/${{ github.base_ref }} origin/${{ github.head_ref }}) --to HEAD
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+          HEAD_REF: origin/${{ github.head_ref }}
+        run: yarn commitlint --from $(git merge-base --independent ${{ env.BASE_REF }} ${{ env.HEAD_REF }} --to $(git rev-parse ${{ env.HEAD_REF }})

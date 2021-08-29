@@ -6,5 +6,15 @@
 	"publishConfig": {
 		"pkgRoot": "./dist"
 	},
-	"analyzeCommits": "semantic-release-conventional-commits"
+	"analyzeCommits": {
+		"path": "semantic-release-conventional-commits",
+		"patchTypes": [
+			"fix",
+			"docs",
+			"refactor",
+			"style",
+			"test",
+			"deps"
+		]
+	}
 }

@@ -1,16 +1,18 @@
-name: Verify Commits
+name: Verify Pull Request Title
 
 on:
   pull_request:
+    types: [opened, reopened, edited, synchronize]
     branches:
-      - release
+      - develop
 
 jobs:
-  verify-commits:
+  verify-title:
     strategy:
       matrix:
         node-version: [12.x]
-    name: Verify commit style
+
+    name: Verify Title
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -20,8 +22,5 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install
         run: yarn install --frozen-lock
-      - name: Run commitlint on commits
-        env:
-          BASE_REF: origin/${{ github.base_ref }}
-          HEAD_REF: origin/${{ github.head_ref }}
-        run: yarn commitlint --from $(git merge-base --octopus ${{ env.BASE_REF }} ${{ env.HEAD_REF }}) --to $(git rev-parse ${{ env.HEAD_REF }})
+      - name: Run commitlint against PR title
+        run: yarn commitlint <<< "${{ github.event.pull_request.title }}"

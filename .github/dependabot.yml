@@ -1,10 +1,11 @@
 version: 2
 updates:
   - package-ecosystem: npm
+    commit-message:
+      prefix: 'deps'
+      prefix-development: 'deps'
     directory: '/'
     schedule:
       interval: daily
     open-pull-requests-limit: 10
     target-branch: develop
-    commit-message:
-      prefix: deps

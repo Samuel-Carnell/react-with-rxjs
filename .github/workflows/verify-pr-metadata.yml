@@ -1,4 +1,4 @@
-name: Verify Pull Request Title and body
+name: Verify Pull Request Title and Body
 
 on:
   pull_request:

@@ -29,4 +29,5 @@ jobs:
         ${{ github.event.pull_request.body }}
         MESSAGE
         )
-        yarn commitlint <<< message
+        echo $message
+        yarn commitlint <<< $message

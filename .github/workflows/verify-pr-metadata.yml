@@ -23,4 +23,4 @@ jobs:
       - name: Install
         run: yarn install --frozen-lock
       - name: Run commitlint against PR title
-        run: echo -e "${{ github.event.pull_request.title }}\n${{ github.event.pull_request.body }}" | yarn commitlint
+        run: echo -e "${{ github.event.pull_request.title }}\n\n${{ github.event.pull_request.body }}" | yarn commitlint

@@ -1,4 +1,4 @@
-name: Verify Pull Request Title
+name: Verify Pull Request Title and Body
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ jobs:
       matrix:
         node-version: [12.x]
 
-    name: Verify Title
+    name: Verify Title and Body
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -23,4 +23,6 @@ jobs:
       - name: Install
         run: yarn install --frozen-lock
       - name: Run commitlint against PR title
-        run: yarn commitlint <<< "${{ github.event.pull_request.title }}"
+        run: |
+          message=$'${{ github.event.pull_request.title }}\n\n${{ github.event.pull_request.body }}'
+          yarn commitlint <<< $message

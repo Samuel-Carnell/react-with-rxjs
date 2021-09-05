@@ -1,6 +1,6 @@
 # React with RxJS
 
-A set of hooks, HOCs, and components for creating and consuming RxJS observables.
+A set of hooks for creating and consuming RxJS observables.
 
 ## Installation
 

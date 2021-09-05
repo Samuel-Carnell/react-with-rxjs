@@ -1,0 +1,28 @@
+name: Verify Commits
+
+on:
+  pull_request:
+    branches:
+      - release
+
+jobs:
+  verify-commits:
+    strategy:
+      matrix:
+        node-version: [12.x]
+    name: Verify commit style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
+      - name: Install
+        run: yarn install --frozen-lock
+      - name: Run commitlint on commits
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+          HEAD_REF: origin/${{ github.head_ref }}
+        run: yarn commitlint --from $(git merge-base --octopus ${{ env.BASE_REF }} ${{ env.HEAD_REF }}) --to $(git rev-parse ${{ env.HEAD_REF }})

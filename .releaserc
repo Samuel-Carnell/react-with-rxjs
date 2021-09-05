@@ -1,8 +1,20 @@
 {
 	"branches": [
-		"develop", "release"
+		"develop",
+		"release"
 	],
 	"publishConfig": {
 		"pkgRoot": "./dist"
+	},
+	"analyzeCommits": {
+		"path": "semantic-release-conventional-commits",
+		"patchTypes": [
+			"fix",
+			"docs",
+			"refactor",
+			"style",
+			"test",
+			"deps"
+		]
 	}
 }

@@ -2,10 +2,10 @@ version: 2
 updates:
   - package-ecosystem: npm
     commit-message:
-      prefix: 'deps'
-      prefix-development: 'deps'
+      prefix: 'chore'
+      include-scope: true
     directory: '/'
     schedule:
       interval: daily
-    open-pull-requests-limit: 10
-    target-branch: develop
+    open-pull-requests-limit: 5
+    target-branch: main

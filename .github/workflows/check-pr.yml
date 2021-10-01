@@ -1,0 +1,88 @@
+name: Verify Pull Request
+
+on:
+  pull_request:
+    branches: main
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Build Library and check size
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-env
+      - name: yarn build
+        run: yarn build
+        env:
+          CI: true
+      - name: yarn size
+        run: yarn size
+
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-env
+      - name: yarn lint
+        run: yarn lint
+        env:
+          CI: true
+
+  test:
+    name: Run unit tests and check coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-env
+      - name: yarn test:coverage
+        run: yarn test:coverage
+        env:
+          CI: true
+
+  build-docs:
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-env
+      - name: yarn docs:build
+        run: yarn docs:build
+        env:
+          CI: true
+
+  commitlint:
+    name: Check commits
+    runs-on: ubuntu-latest
+    if: (github.actor != 'dependabot[bot]') && !startsWith(github.head_ref, 'dependabot/')
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-env
+      - name: yarn commitlint
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+          HEAD_REF: origin/${{ github.head_ref }}
+        run: yarn commitlint --from $(git merge-base --octopus ${{ env.BASE_REF }} ${{ env.HEAD_REF }}) --to $(git rev-parse ${{ env.HEAD_REF }})
+
+  spell-check:
+    name: Check spelling
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-env
+      - name: yarn spellcheck
+        run: yarn spellcheck

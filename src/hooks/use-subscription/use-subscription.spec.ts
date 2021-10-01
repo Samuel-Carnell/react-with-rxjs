@@ -86,7 +86,7 @@ describe('useSubscription', () => {
 	});
 
 	it.each`
-		dependecies
+		dependencies
 		${[new Date()]}
 		${[() => {}]}
 		${[new Observable()]}

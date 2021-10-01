@@ -29,7 +29,7 @@ function publishCurrentState$<TState>(
 		publishReplay(1)
 	);
 
-	// The pipe operator doesn't infer the return type as ConnectableObservable, so the return type needs to be casted
+	// The pipe operator doesn't infer the return type as ConnectableObservable, so the return type needs to be cast
 	return valueOrOperatorFn$.pipe(publishCurrentValue) as ConnectableObservable<TState>;
 }
 

@@ -23,5 +23,5 @@
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "example", "**/*.test.tsx"]
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "src/setupTests.ts"]
 }

@@ -9,7 +9,9 @@ module.exports = {
 		nav: [
 			{ text: 'Guide', link: '/guide/core-concepts' },
 			{ text: 'API', link: '/api/hooks/use-state-observable' },
+			{ text: 'Changelog', link: '/changelog' },
 		],
 		sidebar: sidebar,
+		sidebarDepth: 0,
 	},
 };

@@ -13,6 +13,8 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup-env
+      - name: yarn build
+        run: yarn build
       - name: yarn release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

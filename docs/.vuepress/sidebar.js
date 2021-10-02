@@ -21,4 +21,5 @@ module.exports = {
 			children: ['/guide/installation', '/guide/core-concepts'],
 		},
 	],
+	'/': 'auto',
 };

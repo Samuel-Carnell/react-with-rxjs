@@ -2,13 +2,9 @@ name: Publish Release
 on:
   push:
     branches:
-      - release
+      - main
 jobs:
   publish-package:
-    strategy:
-      matrix:
-        node-version: [12.x]
-
     name: Publish package
     runs-on: ubuntu-latest
     steps:
@@ -16,25 +12,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Build
-        run: |
-          yarn install --frozen-lockfile
-          yarn build
-      - name: Publish
+      - uses: ./.github/actions/setup-env
+      - name: yarn release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: yarn release
 
   publish-docs:
-    strategy:
-      matrix:
-        node-version: [12.x]
-
     name: Publish documentation
     runs-on: ubuntu-latest
     steps:
@@ -42,14 +27,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Build
-        run: |
-          yarn install --frozen-lockfile
-          yarn docs:build
+      - uses: ./.github/actions/setup-env
+      - name: yarn docs:build
+        run: yarn docs:build
       - name: Publish
         uses: peaceiris/actions-gh-pages@v3
         with:

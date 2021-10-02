@@ -41,12 +41,6 @@ module.exports = {
 			},
 		],
 		[
-			'@semantic-release/exec',
-			{
-				prepareCmd: 'yarn build',
-			},
-		],
-		[
 			'@semantic-release/npm',
 			{
 				pkgRoot: 'dist',

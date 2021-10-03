@@ -17,7 +17,7 @@ function renderUseStateObservableHook(
 }
 
 describe('useStateObservable', () => {
-	it('returns the same state$ observable when render multiple times', () => {
+	it('returns the same state$ observable when rendered multiple times', () => {
 		const { result, rerender } = renderUseStateObservableHook(['test']);
 		const [firstObservable] = result.current;
 		rerender();
@@ -91,6 +91,21 @@ describe('useStateObservable', () => {
 		});
 
 		expect(mockNext.mock.calls[0][0]).toBe(object);
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which replays the function returned from the function passed to the hook', () => {
+		const mockFunction = jest.fn();
+		const { result } = renderUseStateObservableHook([() => mockFunction]);
+		const [state$] = result.current;
+
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+
+		expect(mockNext.mock.calls[0][0]).toBe(mockFunction);
 
 		subscription.unsubscribe();
 	});

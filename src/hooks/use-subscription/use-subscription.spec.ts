@@ -176,4 +176,49 @@ describe('useSubscription', () => {
 		unmount();
 		await waitFor(() => expect(mockUnsubscribe).not.toBeCalled());
 	});
+
+	it.each`
+		notAFunction
+		${null}
+		${undefined}
+		${1}
+		${false}
+		${{}}
+		${[]}
+	`('throws a type error when called with $notAFunction', ({ notAFunction }) => {
+		const { result } = renderUseSubscriptionHook([notAFunction, []]);
+		expect(result.error).toBeInstanceOf(TypeError);
+	});
+
+	it('does not throw an error when called with a function', () => {
+		const { result } = renderUseSubscriptionHook([
+			jest.fn().mockReturnValue(new Subscription()),
+			[],
+		]);
+		expect(result.error).toBeUndefined();
+	});
+
+	it.each`
+		notAnArray
+		${null}
+		${undefined}
+		${1}
+		${false}
+		${{}}
+		${() => {}}
+	`('throws a type error when called with $notAnArray', ({ notAnArray }) => {
+		const { result } = renderUseSubscriptionHook([
+			jest.fn().mockReturnValue(new Subscription()),
+			notAnArray,
+		]);
+		expect(result.error).toBeInstanceOf(TypeError);
+	});
+
+	it('does not throw an error when called with an array', () => {
+		const { result } = renderUseSubscriptionHook([
+			jest.fn().mockReturnValue(new Subscription()),
+			[],
+		]);
+		expect(result.error).toBeUndefined();
+	});
 });

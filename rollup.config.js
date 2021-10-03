@@ -52,7 +52,7 @@ export default [
 					dependencies: {},
 					devDependencies: {},
 					peerDependencies,
-					private: true,
+					private: false,
 					config: undefined,
 				}),
 			}),

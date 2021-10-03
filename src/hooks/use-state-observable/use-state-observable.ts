@@ -1,6 +1,6 @@
 import { useCallback, useLayoutEffect } from 'react';
-import { ConnectableObservable, Observable, OperatorFunction, pipe, Subject } from 'rxjs';
-import { distinctUntilChanged, publishReplay, scan, startWith } from 'rxjs/operators';
+import { connectable, Connectable, Observable, ReplaySubject, Subject } from 'rxjs';
+import { distinctUntilChanged, scan, startWith } from 'rxjs/operators';
 import { useFactory } from 'hooks/internal';
 import { useSubscription } from 'hooks/use-subscription';
 import { isFunction } from 'helpers';
@@ -10,27 +10,26 @@ type Operator<T> = (value: T) => T;
 
 type SetSate<T> = (state: T | Operator<T>) => void;
 
-function publishCurrentState$<TState>(
-	valueOrOperatorFn$: Observable<TState | Operator<TState>>,
-	initialValueOrFactoryFn: TState | Factory<TState>
-): ConnectableObservable<TState> {
-	const initialState: TState = isFunction(initialValueOrFactoryFn)
+function currentValue$<TValue>(
+	valueOrOperatorFn$: Observable<TValue | Operator<TValue>>,
+	initialValueOrFactoryFn: TValue | Factory<TValue>
+): Connectable<TValue> {
+	const initialValue: TValue = isFunction(initialValueOrFactoryFn)
 		? initialValueOrFactoryFn()
 		: initialValueOrFactoryFn;
 
-	const publishCurrentValue: OperatorFunction<TState | Operator<TState>, TState> = pipe(
-		startWith(initialState),
-		scan((previousValue: TState, valueOrTransform: TState | Operator<TState>) => {
+	const currentValue$: Observable<TValue> = valueOrOperatorFn$.pipe(
+		startWith(initialValue),
+		scan((previousValue: TValue, valueOrTransform: TValue | Operator<TValue>) => {
 			return isFunction(valueOrTransform) ? valueOrTransform(previousValue) : valueOrTransform;
 		}),
-		distinctUntilChanged(Object.is),
-		// Using publishReplay rather than shareReplay so the current state is always calculated when the observable is
-		// connected, even if nothing is subscribed to the observable.
-		publishReplay(1)
+		distinctUntilChanged(Object.is)
 	);
 
-	// The pipe operator doesn't infer the return type as ConnectableObservable, so the return type needs to be cast
-	return valueOrOperatorFn$.pipe(publishCurrentValue) as ConnectableObservable<TState>;
+	return connectable(currentValue$, {
+		connector: () => new ReplaySubject(1),
+		resetOnDisconnect: false,
+	});
 }
 
 /**
@@ -70,8 +69,8 @@ export function useStateObservable(
 	);
 
 	// initialState is not specified as a dependency as it is only used when the component mounts
-	const currentState$: ConnectableObservable<unknown> = useFactory(
-		() => publishCurrentState$(valueOrOperatorFn$, initialState),
+	const currentState$: Connectable<unknown> = useFactory(
+		() => currentValue$(valueOrOperatorFn$, initialState),
 		[valueOrOperatorFn$],
 		'useStateObservable'
 	);

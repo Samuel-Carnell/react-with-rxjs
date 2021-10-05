@@ -17,7 +17,43 @@ function renderUseStateObservableHook(
 }
 
 describe('useStateObservable', () => {
-	it('returns an observable which replays undefined, when called with no arguments, then the return observable is subscribed to', () => {
+	it('returns the same state$ observable when render multiple times', () => {
+		const { result, rerender } = renderUseStateObservableHook(['test']);
+		const [firstObservable] = result.current;
+		rerender();
+		rerender();
+		rerender();
+		const [secondObservable] = result.current;
+		expect(firstObservable).toBe(secondObservable);
+	});
+
+	it('returns the same setState function when rendered multiple times', () => {
+		const { result, rerender } = renderUseStateObservableHook(['test']);
+		const [, firstFunction] = result.current;
+		rerender();
+		rerender();
+		rerender();
+		const [, secondFunction] = result.current;
+		expect(firstFunction).toBe(secondFunction);
+	});
+
+	it('returns an observable which emits the value passed to the setState function that was returned from a different render', () => {
+		const { result, rerender } = renderUseStateObservableHook(['test']);
+		const [state$] = result.current;
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+
+		rerender();
+		const [, setState] = result.current;
+		setState('test');
+
+		expect(mockNext).toHaveBeenCalledTimes(1);
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which replays undefined when called with no arguments', () => {
 		const { result } = renderUseStateObservableHook([] as any);
 		const [state$] = result.current;
 		const mockNext = jest.fn();
@@ -25,133 +61,238 @@ describe('useStateObservable', () => {
 			next: mockNext,
 		});
 
-		expect(mockNext).toHaveBeenNthCalledWith(1, undefined);
+		expect(mockNext).toHaveBeenCalledWith(undefined);
 
 		subscription.unsubscribe();
 	});
 
-	it.each`
-		initialState        | expected
-		${1}                | ${1}
-		${null}             | ${null}
-		${undefined}        | ${undefined}
-		${Number.MIN_VALUE} | ${Number.MIN_VALUE}
-		${false}            | ${false}
-		${'test'}           | ${'test'}
-		${() => {}}         | ${undefined}
-		${true}             | ${true}
-		${['a']}            | ${['a']}
-		${Math}             | ${Math}
-	`(
-		'returns an observable which replays $expected, when called with $initialState, then the returned observable is subscribed to',
-		({ initialState, expected }) => {
-			const { result } = renderUseStateObservableHook([initialState]);
-			const [state$] = result.current;
+	it('returns an observable which replays the initial value passed to the hook', () => {
+		const { result } = renderUseStateObservableHook([10]);
+		const [state$] = result.current;
 
-			const mockNext = jest.fn();
-			const subscription = state$.subscribe({
-				next: mockNext,
-			});
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
 
-			expect(mockNext).toHaveBeenNthCalledWith(1, expected);
+		expect(mockNext).toHaveBeenCalledWith(10);
 
-			subscription.unsubscribe();
-		}
-	);
+		subscription.unsubscribe();
+	});
 
-	it.each`
-		state               | expected
-		${1}                | ${1}
-		${null}             | ${null}
-		${() => /test/}     | ${/test/}
-		${Number.MIN_VALUE} | ${Number.MIN_VALUE}
-		${false}            | ${false}
-		${'test'}           | ${'test'}
-		${() => []}         | ${[]}
-		${() => 'test'}     | ${'test'}
-		${new Date()}       | ${new Date()}
-		${new Error()}      | ${new Error()}
-		${(x) => !!x}       | ${false}
-		${(x) => !x}        | ${true}
-		${() => jest.fn}    | ${jest.fn}
-	`(
-		'returns an observable which emits $expected, when called with undefined, then the returned observable is subscribed to, then setState is called with $state',
-		({ state, expected }) => {
-			const { result } = renderUseStateObservableHook([undefined]);
-			const [state$, setState] = result.current;
+	it('returns an observable which replays the same object that was passed to the hook', () => {
+		const object = {};
+		const { result } = renderUseStateObservableHook([object]);
+		const [state$] = result.current;
 
-			const mockNext = jest.fn();
-			const subscription = state$.subscribe({
-				next: mockNext,
-			});
-			setState(state);
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
 
-			expect(mockNext).toHaveBeenNthCalledWith(2, expected);
+		expect(mockNext.mock.calls[0][0]).toBe(object);
 
-			subscription.unsubscribe();
-		}
-	);
+		subscription.unsubscribe();
+	});
 
-	it.each`
-		initialState     | secondInitialState  | expected
-		${0}             | ${0.1}              | ${0}
-		${() => 100}     | ${77}               | ${100}
-		${''}            | ${'test'}           | ${''}
-		${() => jest.fn} | ${() => {}}         | ${jest.fn}
-		${undefined}     | ${null}             | ${undefined}
-		${null}          | ${undefined}        | ${null}
-		${new Blob()}    | ${() => new Blob()} | ${new Blob()}
-		${false}         | ${() => true}       | ${false}
-		${{}}            | ${{}}               | ${{}}
-	`(
-		'returns an observable which emits $expected, when called with $initialState, then the returned observable is subscribed to, then is re-render $secondInitialState',
-		({ initialState, secondInitialState, expected }) => {
-			const { result, rerender } = renderUseStateObservableHook([initialState]);
-			const [state$] = result.current;
+	it('returns an observable which emits the result of the function passed to the hook', () => {
+		const { result } = renderUseStateObservableHook([() => 100]);
+		const [state$] = result.current;
 
-			const mockNext = jest.fn();
-			const subscription = state$.subscribe({
-				next: mockNext,
-			});
-			rerender(secondInitialState);
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
 
-			expect(mockNext).toHaveBeenNthCalledWith(1, expected);
+		expect(mockNext).toHaveBeenCalledWith(100);
 
-			subscription.unsubscribe();
-		}
-	);
+		subscription.unsubscribe();
+	});
 
-	it.each`
-		state               | expected
-		${0.1}              | ${0.1}
-		${null}             | ${null}
-		${undefined}        | ${undefined}
-		${(x) => !!x}       | ${false}
-		${(x) => !x}        | ${true}
-		${Boolean}          | ${false}
-		${() => [9999999]}  | ${[9999999]}
-		${() => ''}         | ${''}
-		${{}}               | ${{}}
-		${/test/}           | ${/test/}
-		${() => new Blob()} | ${new Blob()}
-		${true}             | ${true}
-	`(
-		'returns an observable which replays $expected, when called with undefined, then setState is called with $state, then the returned observable is subscribed to',
-		({ state, expected }) => {
-			const { result } = renderUseStateObservableHook([undefined]);
-			const [state$, setState] = result.current;
+	it('returns an observable which emits the latest value the setState function was called with', () => {
+		const { result } = renderUseStateObservableHook(['test']);
+		const [state$, setState] = result.current;
 
-			setState(state);
-			const mockNext = jest.fn();
-			const subscription = state$.subscribe({
-				next: mockNext,
-			});
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
 
-			expect(mockNext).toHaveBeenNthCalledWith(1, expected);
+		setState('test2');
 
-			subscription.unsubscribe();
-		}
-	);
+		expect(mockNext).toHaveBeenLastCalledWith('test2');
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which replays the latest value the setState function was called with', () => {
+		const { result } = renderUseStateObservableHook(['test']);
+		const [state$, setState] = result.current;
+		setState('test2');
+
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+
+		expect(mockNext).toHaveBeenLastCalledWith('test2');
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which replays the same object the setState function was called with', () => {
+		const { result } = renderUseStateObservableHook(['test']);
+		const [state$, setState] = result.current;
+		const object = {};
+		setState(object);
+
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+
+		expect(mockNext.mock.calls[0][0]).toBe(object);
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which only replays the last value the setState function was called with', () => {
+		const { result } = renderUseStateObservableHook(['test']);
+		const [state$, setState] = result.current;
+		setState('test2');
+		setState('test3');
+		setState('test4');
+
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+
+		expect(mockNext).toHaveBeenCalledTimes(1);
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which emits each time the setState function is called', () => {
+		const { result } = renderUseStateObservableHook(['test']);
+		const [state$, setState] = result.current;
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+
+		setState('test2');
+		setState('test3');
+		setState('test4');
+
+		expect(mockNext).toHaveBeenCalledTimes(4);
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which only emits once if the setState function is called with the same value which the hook was initially called with', () => {
+		const { result } = renderUseStateObservableHook([1]);
+		const [state$, setState] = result.current;
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+		setState(1);
+
+		expect(mockNext).toHaveBeenCalledTimes(1);
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which only emits once if the setState function is called multiple times with the same value', () => {
+		const { result } = renderUseStateObservableHook([1]);
+		const [state$, setState] = result.current;
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+		setState(1);
+		setState(1);
+		setState(1);
+		setState(1);
+		setState(1);
+
+		expect(mockNext).toHaveBeenCalledTimes(1);
+
+		subscription.unsubscribe();
+	});
+
+	it('does not use loose equality when checking if the setState function was called with same value', () => {
+		const { result } = renderUseStateObservableHook(['1']);
+		const [state$, setState] = result.current;
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+		setState(1);
+		setState('1');
+		expect(mockNext).toHaveBeenCalledTimes(3);
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which emits the result of the accumulator function passed the setState function', () => {
+		const { result } = renderUseStateObservableHook([1]);
+		const [state$, setState] = result.current;
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+		setState((x: number) => x + 2);
+		setState((x: number) => x + 2);
+		expect(mockNext).toHaveBeenLastCalledWith(5);
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which replays the current accumulated value', () => {
+		const { result } = renderUseStateObservableHook([1]);
+		const [state$, setState] = result.current;
+		setState((x: number) => x + 2);
+		setState((x: number) => x + 2);
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+		expect(mockNext).toHaveBeenLastCalledWith(5);
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which only emits once if the accumulator function passed to the setState function returns the same value as the current accumulated value', () => {
+		const { result } = renderUseStateObservableHook([1]);
+		const [state$, setState] = result.current;
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+		setState((x: number) => x);
+		expect(mockNext).toHaveBeenCalledTimes(1);
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which emits each time the setState function is called with an accumulator function which returns a different result', () => {
+		const { result } = renderUseStateObservableHook([1]);
+		const [state$, setState] = result.current;
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+		setState((x: number) => x + 2);
+		setState((x: number) => x + 2);
+		setState((x: number) => x + 2);
+		setState((x: number) => x + 2);
+		setState((x: number) => x + 2);
+		expect(mockNext).toHaveBeenCalledTimes(6);
+
+		subscription.unsubscribe();
+	});
 
 	it('returns an observable which does not remit the same value, when rendered with null, then setState is called with null, then the returned observable is subscribed to', () => {
 		const { result } = renderUseStateObservableHook([null]);
@@ -168,49 +309,35 @@ describe('useStateObservable', () => {
 		subscription.unsubscribe();
 	});
 
-	it.each`
-		state           | expectedNumberOfTimes
-		${1}            | ${2}
-		${0}            | ${1}
-		${undefined}    | ${2}
-		${null}         | ${2}
-		${'0'}          | ${2}
-		${0.0}          | ${1}
-		${() => 0}      | ${1}
-		${(x) => x + 1} | ${2}
-		${(x) => x * 1} | ${1}
-	`(
-		'returns an observable which emits $expectedNumberOfTimes times, when rendered with 0, then the returned observable is subscribed to, then setState is called with $state,',
-		({ state, expectedNumberOfTimes }) => {
-			const { result } = renderUseStateObservableHook([0]);
-			const [state$, setState] = result.current;
-
-			const mockNext = jest.fn();
-			const subscription = state$.subscribe({
-				next: mockNext,
-			});
-			setState(state);
-
-			expect(mockNext).toHaveBeenCalledTimes(expectedNumberOfTimes);
-
-			subscription.unsubscribe();
-		}
-	);
-
-	it('returns an observable which completes, when called with undefined, then the returned observable is subscribed to, then the hook is unmounted', () => {
-		const { result, unmount } = renderUseStateObservableHook([undefined]);
+	it('returns an observable which completes when the hook is unmounted', () => {
+		const { result, unmount } = renderUseStateObservableHook([null]);
 		const [state$] = result.current;
-
 		const mockComplete = jest.fn();
-		const subscription = state$.subscribe({ complete: mockComplete });
-		unmount();
+		const subscription = state$.subscribe({
+			complete: mockComplete,
+		});
 
-		expect(mockComplete).toHaveBeenCalledTimes(1);
+		unmount();
+		expect(mockComplete).toHaveBeenCalled();
 
 		subscription.unsubscribe();
 	});
 
-	it('returns an observable which is not complete, when called with undefined, then the returned observable is subscribed to', () => {
+	it('returns an observable which completes when the hook is already unmounted', () => {
+		const { result, unmount } = renderUseStateObservableHook([null]);
+		const [state$] = result.current;
+		unmount();
+
+		const mockComplete = jest.fn();
+		const subscription = state$.subscribe({
+			complete: mockComplete,
+		});
+		expect(mockComplete).toHaveBeenCalled();
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which does not complete when its subscribed to', () => {
 		const { result } = renderUseStateObservableHook([undefined]);
 		const [state$] = result.current;
 
@@ -222,144 +349,107 @@ describe('useStateObservable', () => {
 		subscription.unsubscribe();
 	});
 
-	it('returns an observable which completes, when called with undefined, then the hook is unmounted, then the returned observable is subscribed to, ', () => {
-		const { result, unmount } = renderUseStateObservableHook([undefined]);
+	it('returns an observable which replays the last value the setState function was called with before the hook was unmounted', () => {
+		const { result, unmount } = renderUseStateObservableHook([null]);
+		const [state$, setState] = result.current;
+		setState(100);
+		unmount();
+
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+		expect(mockNext).toHaveBeenCalledWith(100);
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which replays the accumulated value before the hook was unmounted', () => {
+		const { result, unmount } = renderUseStateObservableHook([1]);
+		const [state$, setState] = result.current;
+		setState((x: number) => x + 2);
+		setState((x: number) => x + 2);
+		setState((x: number) => x + 2);
+		setState((x: number) => x + 2);
+		setState((x: number) => x + 2);
+		unmount();
+
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+		expect(mockNext).toHaveBeenCalledWith(11);
+
+		subscription.unsubscribe();
+	});
+
+	it('returns an observable which completes once when the hook is unmounted multiple times', () => {
+		const { result, unmount } = renderUseStateObservableHook([null]);
 		const [state$] = result.current;
+		unmount();
+		unmount();
+		unmount();
+		unmount();
 		unmount();
 
 		const mockComplete = jest.fn();
-		const subscription = state$.subscribe({ complete: mockComplete });
+		const subscription = state$.subscribe({
+			complete: mockComplete,
+		});
 		expect(mockComplete).toHaveBeenCalledTimes(1);
 
 		subscription.unsubscribe();
 	});
 
-	it.each`
-		initialState        | firstState            | secondState           | thirdState       | expectedNumberOfTimes
-		${undefined}        | ${1}                  | ${2}                  | ${3}             | ${4}
-		${undefined}        | ${undefined}          | ${1}                  | ${2}             | ${3}
-		${0}                | ${0}                  | ${0}                  | ${0}             | ${1}
-		${'test'}           | ${'test2'}            | ${'test2'}            | ${'test2'}       | ${2}
-		${0}                | ${(x) => x + 1}       | ${1}                  | ${(x) => x + 1}  | ${3}
-		${() => null}       | ${() => null}         | ${() => null}         | ${'test'}        | ${2}
-		${{}}               | ${{}}                 | ${{}}                 | ${{}}            | ${4}
-		${'test'}           | ${(x) => x}           | ${(x) => x}           | ${(x) => x}      | ${1}
-		${[]}               | ${[]}                 | ${[]}                 | ${() => []}      | ${4}
-		${() => 1}          | ${(x) => x - 1}       | ${(x) => x + 1}       | ${(x) => x - 1}  | ${4}
-		${() => 'test'}     | ${'test'}             | ${(x) => x + 'test'}  | ${'test'}        | ${3}
-		${false}            | ${true}               | ${false}              | ${false}         | ${3}
-		${false}            | ${1}                  | ${'test'}             | ${undefined}     | ${4}
-		${() => new Date()} | ${new Date()}         | ${new Date()}         | ${new Date()}    | ${4}
-		${() => false}      | ${(x) => !x}          | ${true}               | ${true}          | ${2}
-		${() => 'test'}     | ${false}              | ${[true]}             | ${'test'}        | ${4}
-		${() => 1}          | ${(x) => x / 0}       | ${(x) => x / 0}       | ${(x) => x / 0}  | ${2}
-		${() => ['a']}      | ${(x) => [...x, 'b']} | ${(x) => [...x, 'c']} | ${(x) => [...x]} | ${4}
-	`(
-		'returns an observable which emits $expectedNumberOfTimes times, when called with $initialState, then the returned observable is subscribed to, then setState is called with $firstState, then setState is called with $secondState, then setState is called with $thirdState',
-		({ initialState, firstState, secondState, thirdState, expectedNumberOfTimes }) => {
-			const { result } = renderUseStateObservableHook([initialState]);
-			const [state$, setState] = result.current;
+	it('returns an observable which does not emit values from subsequent re-renders', () => {
+		const { result, rerender } = renderUseStateObservableHook(['test']);
+		const [state$] = result.current;
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
 
-			const mockNext = jest.fn();
-			const subscription = state$.subscribe({
-				next: mockNext,
-			});
-			setState(firstState);
-			setState(secondState);
-			setState(thirdState);
+		rerender(['test2']);
+		rerender(['test3']);
+		rerender(['test4']);
 
-			expect(mockNext).toBeCalledTimes(expectedNumberOfTimes);
+		expect(mockNext).toBeCalledTimes(1);
 
-			subscription.unsubscribe();
-		}
-	);
+		subscription.unsubscribe();
+	});
 
-	it.each`
-		initialState                              | firstState            | secondState           | thirdState                 | expected
-		${undefined}                              | ${1}                  | ${2}                  | ${3}                       | ${3}
-		${undefined}                              | ${undefined}          | ${1}                  | ${2}                       | ${2}
-		${0}                                      | ${0}                  | ${0}                  | ${0}                       | ${0}
-		${'test'}                                 | ${'test2'}            | ${'test2'}            | ${'test2'}                 | ${'test2'}
-		${0}                                      | ${(x) => x + 1}       | ${1}                  | ${(x) => x + 1}            | ${2}
-		${() => null}                             | ${() => null}         | ${() => null}         | ${'test'}                  | ${'test'}
-		${'test'}                                 | ${(x) => x}           | ${(x) => x}           | ${(x) => x}                | ${'test'}
-		${() => 1}                                | ${(x) => x - 1}       | ${(x) => x + 1}       | ${(x) => x - 1}            | ${0}
-		${() => 'test'}                           | ${'test'}             | ${(x) => x + 'test'}  | ${'test'}                  | ${'test'}
-		${false}                                  | ${true}               | ${false}              | ${false}                   | ${false}
-		${false}                                  | ${1}                  | ${'test'}             | ${undefined}               | ${undefined}
-		${() => false}                            | ${(x) => !x}          | ${true}               | ${true}                    | ${true}
-		${() => 'test'}                           | ${false}              | ${[true]}             | ${'test'}                  | ${'test'}
-		${() => 1}                                | ${(x) => x / 0}       | ${(x) => x / 0}       | ${(x) => x / 0}            | ${Number.POSITIVE_INFINITY}
-		${() => ['a']}                            | ${(x) => [...x, 'b']} | ${(x) => [...x, 'c']} | ${(x) => [...x]}           | ${['a', 'b', 'c']}
-		${() => new Date('2000-01-01T00:00:00Z')} | ${(x) => x}           | ${(x) => x}           | ${(x) => x.toISOString()}  | ${'2000-01-01T00:00:00.000Z'}
-		${''}                                     | ${{}}                 | ${(x) => x}           | ${(x) => ({ ...x, a: 1 })} | ${{ a: 1 }}
-		${Boolean}                                | ${(x) => x}           | ${(x) => new x()}     | ${(x) => x.valueOf()}      | ${false}
-	`(
-		'returns an observable which emits $expected, when called with $initialState, then the returned observable is subscribed to, then setState is called with $firstState, then setState is called with $secondState, then setState is called with $thirdState',
-		({ initialState, firstState, secondState, thirdState, expected }) => {
-			const { result } = renderUseStateObservableHook([initialState]);
-			const [state$, setState] = result.current;
+	it('returns an observable which only replays the initial value from the first render', () => {
+		const { result, rerender } = renderUseStateObservableHook(['test']);
+		const [state$] = result.current;
+		rerender(['test2']);
+		rerender(['test3']);
+		rerender(['test4']);
 
-			const mockNext = jest.fn();
-			const subscription = state$.subscribe({
-				next: mockNext,
-			});
-			setState(firstState);
-			setState(secondState);
-			setState(thirdState);
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({
+			next: mockNext,
+		});
+		expect(mockNext).toBeCalledTimes(1);
 
-			expect(mockNext).toHaveBeenLastCalledWith(expected);
+		subscription.unsubscribe();
+	});
 
-			subscription.unsubscribe();
-		}
-	);
+	it('returns an observable which shares the argument passed to the setState function amongst subscribers', () => {
+		const { result } = renderUseStateObservableHook([null]);
+		const [state$, setState] = result.current;
 
-	it.each`
-		initialState        | firstState            | secondState           | thirdState       | expectedNumberOfTimes
-		${0}                | ${(x) => x + 1}       | ${1}                  | ${(x) => x + 1}  | ${2}
-		${() => null}       | ${() => null}         | ${() => null}         | ${'test'}        | ${2}
-		${undefined}        | ${1}                  | ${2}                  | ${3}             | ${3}
-		${undefined}        | ${undefined}          | ${1}                  | ${2}             | ${3}
-		${0}                | ${0}                  | ${0}                  | ${0}             | ${1}
-		${'test'}           | ${'test2'}            | ${'test2'}            | ${'test2'}       | ${1}
-		${{}}               | ${{}}                 | ${{}}                 | ${{}}            | ${3}
-		${'test'}           | ${(x) => x}           | ${(x) => x}           | ${(x) => x}      | ${1}
-		${[]}               | ${[]}                 | ${[]}                 | ${() => []}      | ${3}
-		${() => 1}          | ${(x) => x - 1}       | ${(x) => x + 1}       | ${(x) => x - 1}  | ${3}
-		${() => 'test'}     | ${'test'}             | ${(x) => x + 'test'}  | ${'test'}        | ${3}
-		${false}            | ${true}               | ${false}              | ${false}         | ${2}
-		${false}            | ${1}                  | ${'test'}             | ${undefined}     | ${3}
-		${() => new Date()} | ${new Date()}         | ${() => new Date()}   | ${(x) => x}      | ${2}
-		${() => false}      | ${(x) => !x}          | ${true}               | ${true}          | ${1}
-		${() => 'test'}     | ${false}              | ${[true]}             | ${'test'}        | ${3}
-		${() => 1}          | ${(x) => x / 0}       | ${(x) => x / 0}       | ${(x) => x / 0}  | ${1}
-		${() => ['a']}      | ${(x) => [...x, 'b']} | ${(x) => [...x, 'c']} | ${(x) => [...x]} | ${3}
-	`(
-		'returns an observable which emits $expectedNumberOfTimes times, when called with $initialState, then setState is called with $firstState, then the returned observable is subscribed to, then setState is called with $secondState, then setState is called with $thirdState',
-		({ initialState, firstState, secondState, thirdState, expectedNumberOfTimes }) => {
-			const { result } = renderUseStateObservableHook([initialState]);
-			const [state$, setState] = result.current;
+		const mockNext = jest.fn();
+		const subscription = state$.subscribe({ next: mockNext });
+		const mockNext2 = jest.fn();
+		const subscription2 = state$.subscribe({ next: mockNext2 });
 
-			setState(firstState);
-			const mockNext = jest.fn();
-			const subscription = state$.subscribe({
-				next: mockNext,
-			});
-			setState(secondState);
-			setState(thirdState);
+		const object = {};
+		setState(object);
 
-			expect(mockNext).toBeCalledTimes(expectedNumberOfTimes);
+		expect(mockNext.mock.calls[1][0]).toBe(object);
+		expect(mockNext.mock.calls[1][0]).toBe(object);
 
-			subscription.unsubscribe();
-		}
-	);
-
-	it('only calls initialState once, when re-rendered twice', () => {
-		const mockInitialState = jest.fn().mockReturnValue(undefined);
-		const { rerender } = renderUseStateObservableHook([mockInitialState]);
-		rerender([mockInitialState]);
-		rerender([mockInitialState]);
-
-		expect(mockInitialState).toHaveBeenCalledTimes(1);
+		subscription.unsubscribe();
+		subscription2.unsubscribe();
 	});
 });

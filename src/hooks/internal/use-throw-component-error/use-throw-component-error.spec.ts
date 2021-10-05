@@ -12,21 +12,23 @@ function renderUseThrowComponentError(): RenderHookResult<
 }
 
 describe('useThrowComponentError', () => {
-	it.each`
-		error
-		${''}
-		${false}
-		${new Error()}
-		${new RangeError()}
-		${Math.E}
-		${123}
-	`(
-		'returns a function which re-renders the component throwing $error, when called with $error',
-		(error) => {
-			const { result } = renderUseThrowComponentError();
-			const throwComponentError = result.current;
-			act(() => throwComponentError(error));
-			expect(result.error).toBe(error);
-		}
-	);
+	it('does not throw an error on the initial error', () => {
+		const { result } = renderUseThrowComponentError();
+		expect(result.error).toBeUndefined();
+	});
+
+	it('returns a function which when called with an error throws the error on the next render', () => {
+		const error = new Error();
+		const { result } = renderUseThrowComponentError();
+		const throwComponentError = result.current;
+		act(() => throwComponentError(error));
+		expect(result.error).toBe(error);
+	});
+
+	it('returns a function which when called with undefined does not throw an error on the next render', () => {
+		const { result } = renderUseThrowComponentError();
+		const throwComponentError = result.current;
+		act(() => throwComponentError(undefined));
+		expect(result.error).toBeUndefined();
+	});
 });

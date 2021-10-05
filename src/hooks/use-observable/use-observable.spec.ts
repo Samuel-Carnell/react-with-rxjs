@@ -134,4 +134,42 @@ describe('useObservable', () => {
 			expect(result.error).toBeUndefined();
 		}
 	);
+
+	it.each`
+		notAFunction
+		${null}
+		${undefined}
+		${1}
+		${false}
+		${{}}
+		${[]}
+	`('throws a type error when given $notAFunction', ({ notAFunction }) => {
+		const { result } = renderUseObservableHook([notAFunction]);
+		expect(result.error).toBeInstanceOf(TypeError);
+	});
+
+	it('does not throw an error when called with a function', () => {
+		const { result } = renderUseObservableHook([jest.fn().mockReturnValue(new Observable())]);
+		expect(result.error).toBeUndefined();
+	});
+
+	it.each`
+		notAnArray
+		${null}
+		${1}
+		${false}
+		${{}}
+		${() => {}}
+	`('throws a type error when called with $notAnArray', ({ notAnArray }) => {
+		const { result } = renderUseObservableHook([
+			jest.fn().mockReturnValue(new Observable()),
+			notAnArray,
+		]);
+		expect(result.error).toBeInstanceOf(TypeError);
+	});
+
+	it('does not throw an error when called with an array', () => {
+		const { result } = renderUseObservableHook([jest.fn().mockReturnValue(new Observable()), []]);
+		expect(result.error).toBeUndefined();
+	});
 });

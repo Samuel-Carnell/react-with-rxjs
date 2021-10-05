@@ -24,7 +24,7 @@ Before using this hook check that your use case isn't already covered by [useLat
 :::
 
 :::warning
-Similar to the `useEffect` hook, the length of the dependencies array should stay the same across re-renders. Changes in the length of the array could lead to unpredictable results.
+Similar to the `useEffect` hook, the length of the dependency array should stay the same across re-renders. Changes in the length of the array could lead to unpredictable results.
 :::
 
 ### Example

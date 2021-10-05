@@ -20,7 +20,7 @@ To make this hook concurrent mode safe the subscription is created after the com
 :::
 
 :::tip BehaviorSubjects
-Unlike other observable, RxJS' [BehaviorSubjects](https://rxjs.dev/api/index/class/BehaviorSubject) provide a `getValue` method for reading values synchronously. This hook utilizes this method to get the current value on the initial render, before the component has mounted and the subscription has been established, avoiding the need to default to `undefined`.
+Unlike other observable, RxJS' [BehaviorSubjects](https://rxjs.dev/api/index/class/BehaviorSubject) provide a `getValue` method for reading its current value. This hook utilizes this method to get the current value on the initial render, before the component has mounted and the subscription has been established, avoiding the need to default to `undefined`.
 :::
 
 :::tip Error Handling

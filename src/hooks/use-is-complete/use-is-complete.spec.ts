@@ -1,20 +1,5 @@
 import { act, Renderer, renderHook, RenderHookResult } from '@testing-library/react-hooks';
-import {
-	asyncScheduler,
-	AsyncSubject,
-	BehaviorSubject,
-	ConnectableObservable,
-	EMPTY,
-	NEVER,
-	noop,
-	Observable,
-	of,
-	ReplaySubject,
-	scheduled,
-	Subject,
-	throwError,
-} from 'rxjs';
-import { map } from 'rxjs/operators';
+import { EMPTY, Observable, Subject, throwError, BehaviorSubject, ReplaySubject } from 'rxjs';
 import { useIsComplete } from './use-is-complete';
 
 type useIsCompleteParams = Parameters<typeof useIsComplete>;
@@ -28,118 +13,73 @@ function renderUseIsComplete(
 	});
 }
 
-describe.only('useObservableState', () => {
-	it.each`
-		observable
-		${new Observable()}
-		${new ConnectableObservable(new Observable(), () => new Subject())}
-		${new Subject()}
-		${new BehaviorSubject('')}
-		${new ReplaySubject(0)}
-		${new AsyncSubject()}
-	`('initially returns false when given $observable', ({ observable }) => {
-		const { result } = renderUseIsComplete([observable]);
+describe('useIsComplete', () => {
+	it('initially returns false', () => {
+		const { result } = renderUseIsComplete([new Observable()]);
 		expect(result.current).toBe(false);
 	});
 
-	it.each`
-		value
-		${'value2'}
-		${{}}
-		${Number.MIN_VALUE}
-		${[]}
-		${undefined}
-		${null}
-		${new Date(2000, 4, 15, 9, 55)}
-	`(
-		'returns false when given a subject which emits $value after the initial render',
-		({ value }) => {
-			const subject = new Subject();
-			const { result } = renderUseIsComplete([subject]);
-			act(() => subject.next(value));
-			expect(result.current).toEqual(false);
-		}
-	);
-
-	it.each`
-		observable                     | expected
-		${of(1, 2, 3)}                 | ${[false, true]}
-		${of(false)}                   | ${[false, true]}
-		${of('a', 'b', 'c', 'd')}      | ${[false, true]}
-		${EMPTY}                       | ${[false, true]}
-		${NEVER}                       | ${[false]}
-		${throwError(new TypeError())} | ${[false, new TypeError()]}
-		${throwError('error')}         | ${[false, 'error']}
-	`('returns $expected when given $initialValue and $observable ', ({ observable, expected }) => {
-		const { result } = renderUseIsComplete([observable]);
-		expect(result.all).toEqual(expected);
+	it('returns false when given a subject which emits a value', () => {
+		const subject = new Subject();
+		const { result } = renderUseIsComplete([subject]);
+		act(() => subject.next('test'));
+		expect(result.current).toEqual(false);
 	});
 
-	it.each`
-		observable                     | expected
-		${of(1, 2, 3)}                 | ${[false, true, true, true]}
-		${of(false)}                   | ${[false, true, true, true]}
-		${of('a', 'b', 'c', 'd')}      | ${[false, true, true, true]}
-		${EMPTY}                       | ${[false, true, true]}
-		${EMPTY.pipe(map(noop))}       | ${[false, true, true, true]}
-		${NEVER}                       | ${[false, true, true, false]}
-		${throwError(new TypeError())} | ${[false, true, true, new TypeError()]}
-		${throwError('error')}         | ${[false, true, true, 'error']}
-	`(
-		'returns $expected when given an empty observable, then re-rendered with $observable',
-		({ observable, expected }) => {
-			const { result, rerender } = renderUseIsComplete([EMPTY]);
-			rerender([observable]);
-			expect(result.all).toEqual(expected);
-		}
-	);
+	it('throws an error when called with an observable which throws an error', () => {
+		const error = new Error();
+		const observable = throwError(() => error);
 
-	it.each`
-		observable                                      | expected
-		${scheduled(of('e', 'f', 'g'), asyncScheduler)} | ${[false, true, true, false, true]}
-		${throwError(new Error(), asyncScheduler)}      | ${[false, true, true, false, new Error()]}
-	`(
-		'returns $expected when given an empty observable, then re-rendered with $observable',
-		async ({ observable, expected }) => {
-			const { result, rerender, waitForNextUpdate } = renderUseIsComplete([EMPTY]);
-			rerender([observable]);
-			await waitForNextUpdate();
-			expect(result.all).toEqual(expected);
-		}
-	);
+		const { result } = renderUseIsComplete([observable]);
+		expect(result.error).toBe(error);
+	});
 
-	it.each`
-		observable                     | expected
-		${of(1, 2, 3)}                 | ${[false, false, true]}
-		${of(false)}                   | ${[false, false, true]}
-		${of('a', 'b', 'c', 'd')}      | ${[false, false, true]}
-		${EMPTY}                       | ${[false, false, true]}
-		${NEVER}                       | ${[false, false]}
-		${NEVER.pipe(map(noop))}       | ${[false, false]}
-		${throwError(new TypeError())} | ${[false, false, new TypeError()]}
-		${throwError('error')}         | ${[false, false, 'error']}
-	`(
-		"returns $expected when given an observable which doesn't complete, then re-rendered with $observable",
-		({ observable, expected }) => {
-			const { result, rerender } = renderUseIsComplete([NEVER]);
-			rerender([observable]);
-			expect(result.all).toEqual(expected);
-		}
-	);
+	it('returns true when called with an observable which immediately completes', () => {
+		const observable = EMPTY;
+		const { result } = renderUseIsComplete([observable]);
 
-	it.each`
-		observable                                      | expected
-		${scheduled(of('e', 'f', 'g'), asyncScheduler)} | ${[false, false, true]}
-		${throwError(new Error(), asyncScheduler)}      | ${[false, false, new Error()]}
-	`(
-		"returns $expected when given an observable which doesn't complete, then re-rendered with $observable",
-		async ({ observable, expected }) => {
-			const { result, rerender, waitForNextUpdate } = renderUseIsComplete([NEVER]);
-			rerender([observable]);
-			await waitForNextUpdate();
-			expect(result.all).toEqual(expected);
-		}
-	);
+		expect(result.current).toBe(true);
+	});
+
+	it('returns true when called with a subject which completes', () => {
+		const subject = new Subject();
+		const { result } = renderUseIsComplete([subject]);
+		act(() => subject.complete());
+
+		expect(result.current).toBe(true);
+	});
+
+	it('returns true when called with a subject that has already completed', () => {
+		const subject = new Subject();
+		subject.complete();
+		const { result } = renderUseIsComplete([subject]);
+
+		expect(result.current).toBe(true);
+	});
+
+	it('returns false when called with a completed observable, then re-rendered with a uncompleted observable', () => {
+		const observable = EMPTY;
+		const { result, rerender } = renderUseIsComplete([observable]);
+		rerender([new Observable()]);
+
+		expect(result.current).toBe(false);
+	});
+
+	it('returns false when called with an observable which throws an error, then re-rendered with an incomplete observable', () => {
+		const error = new Error();
+		const observable = throwError(() => error);
+		const { result, rerender } = renderUseIsComplete([observable]);
+		rerender([new Observable()]);
+
+		expect(result.current).toBe(false);
+	});
+
+	it('returns true when called with an incomplete observable, then re-rendered with a completed observable', () => {
+		const { result, rerender } = renderUseIsComplete([new Observable()]);
+		rerender([EMPTY]);
+
+		expect(result.current).toBe(true);
+	});
 
 	it.each`
 		notObservable
@@ -158,44 +98,14 @@ describe.only('useObservableState', () => {
 		expect(result.error).toBeInstanceOf(TypeError);
 	});
 
-	it('re throws errors thrown by the given observable', () => {
-		const error = new Error();
-		const { result } = renderUseIsComplete([throwError(() => error)]);
-		expect(result.error).toEqual(error);
+	it.each`
+		observable
+		${new Observable()}
+		${new Subject()}
+		${new BehaviorSubject(null)}
+		${new ReplaySubject(0)}
+	`('does not throw a TypeError when given $observable', ({ observable }) => {
+		const { result } = renderUseIsComplete([observable]);
+		expect(result.error).toBeUndefined();
 	});
-
-	it.each`
-		observable                     | expected
-		${of(1, 2, 3)}                 | ${[false, new Error(), false, true]}
-		${of(false)}                   | ${[false, new Error(), false, true]}
-		${of('a', 'b', 'c', 'd')}      | ${[false, new Error(), false, true]}
-		${EMPTY}                       | ${[false, new Error(), false, true]}
-		${NEVER}                       | ${[false, new Error(), false]}
-		${NEVER.pipe(map(noop))}       | ${[false, new Error(), false]}
-		${throwError(new TypeError())} | ${[false, new Error(), false, new TypeError()]}
-		${throwError('error')}         | ${[false, new Error(), false, 'error']}
-	`(
-		'returns $expected when given an observable which throws an error, then re-rendered with $observable',
-		({ observable, expected }) => {
-			const { result, rerender } = renderUseIsComplete([throwError(() => new Error())]);
-			rerender([observable]);
-			expect(result.all).toEqual(expected);
-		}
-	);
-
-	it.each`
-		observable                                      | expected
-		${scheduled(of('e', 'f', 'g'), asyncScheduler)} | ${[false, new Error(), false, true]}
-		${throwError(new Error(), asyncScheduler)}      | ${[false, new Error(), false, new Error()]}
-	`(
-		'returns $expected when given an observable which throws an error, then re-rendered with $observable',
-		async ({ observable, expected }) => {
-			const { result, rerender, waitForNextUpdate } = renderUseIsComplete([
-				throwError(() => new Error()),
-			]);
-			rerender([observable]);
-			await waitForNextUpdate();
-			expect(result.all).toEqual(expected);
-		}
-	);
 });

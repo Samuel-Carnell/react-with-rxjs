@@ -1,21 +1,17 @@
 import { act, Renderer, renderHook, RenderHookResult } from '@testing-library/react-hooks';
 import {
 	asyncScheduler,
-	AsyncSubject,
 	BehaviorSubject,
-	ConnectableObservable,
 	EMPTY,
 	NEVER,
-	noop,
 	Observable,
 	of,
-	range,
-	ReplaySubject,
 	scheduled,
 	Subject,
+	Subscription,
 	throwError,
+	ReplaySubject,
 } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { useLatestValue } from './use-latest-value';
 
 type useLatestValueParams = Parameters<typeof useLatestValue>;
@@ -29,187 +25,177 @@ function renderUseLatestValue(
 	});
 }
 
-describe.only('useLatestValue', () => {
-	it.each`
-		observable
-		${new Observable()}
-		${new ConnectableObservable(new Observable(), () => new Subject())}
-		${new Subject()}
-		${new ReplaySubject(0)}
-		${new AsyncSubject()}
-	`('initially returns undefined when given $observable', ({ observable }) => {
-		const { result } = renderUseLatestValue([observable]);
-		expect(result.current).toBe(undefined);
+describe('useLatestValue', () => {
+	it('initially returns undefined', () => {
+		const { result } = renderUseLatestValue([new Observable()]);
+		expect(result.current).toBeUndefined();
 	});
 
-	it.each`
-		value
-		${() => {}}
-		${function* () {}}
-		${new Function()}
-		${{ a: 'test' }}
-		${0}
-		${null}
-		${100}
-		${'test'}
-		${Math.abs}
-		${Number.NaN}
-		${Boolean}
-		${false}
-		${true}
-		${[]}
-		${new String()}
-		${undefined}
-		${Function}
-		${EMPTY}
-	`(
-		'initially returns $value when given an behavior subject with an initial value of $value',
-		({ value }) => {
-			const behaviorSubject = new BehaviorSubject(value);
-			const { result } = renderUseLatestValue([behaviorSubject]);
-			expect(result.current).toBe(value);
-		}
-	);
-
-	it.each`
-		value
-		${'value2'}
-		${{}}
-		${Number.MIN_VALUE}
-		${[]}
-		${undefined}
-		${null}
-		${new Date(2000, 4, 15, 9, 55)}
-	`(
-		'returns false when given a subject which emits $value after the initial render',
-		({ value }) => {
-			const subject = new Subject();
-			const { result } = renderUseLatestValue([subject]);
-			act(() => subject.next(value));
-			expect(result.current).toBe(value);
-		}
-	);
-
-	it.each`
-		observable                     | expected
-		${of(1, 2, 3)}                 | ${[undefined, 3]}
-		${of(false)}                   | ${[undefined, false]}
-		${of('a', 'b', 'c', 'd')}      | ${[undefined, 'd']}
-		${EMPTY}                       | ${[undefined]}
-		${NEVER}                       | ${[undefined]}
-		${throwError(new TypeError())} | ${[undefined, new TypeError()]}
-		${throwError('error')}         | ${[undefined, 'error']}
-		${new BehaviorSubject('test')} | ${['test']}
-		${range(1, 1000)}              | ${[undefined, 1000]}
-	`('returns $expected when given $initialValue and $observable ', ({ observable, expected }) => {
-		const { result } = renderUseLatestValue([observable]);
-		expect(result.all).toEqual(expected);
+	it('initially returns the current state of a behaviour subject if called with one', () => {
+		const behaviorSubject = new BehaviorSubject('test');
+		const { result } = renderUseLatestValue([behaviorSubject]);
+		expect(result.current).toBe('test');
 	});
 
-	it.each`
-		observable                      | expected
-		${of(1, 2, 3)}                  | ${[undefined, 'test', 'test', 3]}
-		${of(false)}                    | ${[undefined, 'test', 'test', false]}
-		${of('a', 'b', 'c', 'd')}       | ${[undefined, 'test', 'test', 'd']}
-		${of('a', 'b', 'c', 'test')}    | ${[undefined, 'test', 'test', 'test']}
-		${of('a', 'a', 'a', 'a', 'a')}  | ${[undefined, 'test', 'test', 'a']}
-		${EMPTY}                        | ${[undefined, 'test', 'test']}
-		${EMPTY.pipe(map(noop))}        | ${[undefined, 'test', 'test']}
-		${NEVER}                        | ${[undefined, 'test', 'test']}
-		${NEVER.pipe(map(noop))}        | ${[undefined, 'test', 'test']}
-		${throwError(new TypeError())}  | ${[undefined, 'test', 'test', new TypeError()]}
-		${throwError('error')}          | ${[undefined, 'test', 'test', 'error']}
-		${new BehaviorSubject('test')}  | ${[undefined, 'test', 'test']}
-		${new BehaviorSubject('test2')} | ${[undefined, 'test', 'test', 'test2']}
-		${range(1, 1000)}               | ${[undefined, 'test', 'test', 1000]}
-	`(
-		'returns $expected when given an observable of "test", then re-rendered with $observable',
-		({ observable, expected }) => {
-			const { result, rerender } = renderUseLatestValue([of('test')]);
-			rerender([observable]);
-			expect(result.all).toEqual(expected);
-		}
-	);
+	it('returns the value emitted by the given subject', () => {
+		const subject = new Subject();
+		const { result } = renderUseLatestValue([subject]);
+		act(() => subject.next(1));
+		expect(result.current).toBe(1);
+	});
 
-	it.each`
-		observable                                                 | expected
-		${scheduled(of('e', 'f', 'g'), asyncScheduler)}            | ${[undefined, 'test', 'test', 'e', 'f', 'g']}
-		${scheduled(of(1, 2, 3), asyncScheduler)}                  | ${[undefined, 'test', 'test', 1, 2, 3]}
-		${scheduled(of(false), asyncScheduler)}                    | ${[undefined, 'test', 'test', false]}
-		${scheduled(new BehaviorSubject('test2'), asyncScheduler)} | ${[undefined, 'test', 'test', 'test2']}
-		${scheduled(range(1, 5), asyncScheduler)}                  | ${[undefined, 'test', 'test', 1, 2, 3, 4, 5]}
-		${throwError(new Error(), asyncScheduler)}                 | ${[undefined, 'test', 'test', new Error()]}
-	`(
-		'returns $expected when given an observable of "test, then re-rendered with $observable',
-		async ({ observable, expected }) => {
-			const { result, rerender, waitForNextUpdate } = renderUseLatestValue([of('test')]);
-			rerender([observable]);
-			await waitForNextUpdate();
-			expect(result.all).toEqual(expected);
-		}
-	);
+	it('returns the same object reference emitted by the given subject', () => {
+		const object = {};
+		const subject = new Subject();
+		const { result } = renderUseLatestValue([subject]);
+		act(() => subject.next(object));
+		expect(result.current).toBe(object);
+	});
 
-	it.each`
-		observable                      | expected
-		${of(1, 2, 3)}                  | ${[undefined, undefined, 3]}
-		${of(false)}                    | ${[undefined, undefined, false]}
-		${of('a', 'b', 'c', 'd')}       | ${[undefined, undefined, 'd']}
-		${of('a', 'b', 'c', 'test')}    | ${[undefined, undefined, 'test']}
-		${EMPTY}                        | ${[undefined, undefined]}
-		${EMPTY.pipe(map(noop))}        | ${[undefined, undefined]}
-		${NEVER}                        | ${[undefined, undefined]}
-		${NEVER.pipe(map(noop))}        | ${[undefined, undefined]}
-		${throwError(new TypeError())}  | ${[undefined, undefined, new TypeError()]}
-		${throwError('error')}          | ${[undefined, undefined, 'error']}
-		${new BehaviorSubject('test')}  | ${[undefined, undefined, 'test']}
-		${new BehaviorSubject('test2')} | ${[undefined, undefined, 'test2']}
-		${range(1, 1000)}               | ${[undefined, undefined, 1000]}
-	`(
-		"returns $expected when given an observable which doesn't complete, then re-rendered with $observable",
-		({ observable, expected }) => {
-			const { result, rerender } = renderUseLatestValue([NEVER]);
-			rerender([observable]);
-			expect(result.all).toEqual(expected);
-		}
-	);
+	it('returns the latest value emitted by the given subject, when the hook is rendered multiple times', () => {
+		const subject = new Subject();
+		const { result, rerender } = renderUseLatestValue([subject]);
+		act(() => subject.next(1));
+		rerender();
+		rerender();
+		rerender();
+		expect(result.current).toBe(1);
+	});
 
-	it.each`
-		observable                                                 | expected
-		${scheduled(of('e', 'f', 'g'), asyncScheduler)}            | ${[undefined, undefined, 'e', 'f', 'g']}
-		${scheduled(of(1, 2, 3), asyncScheduler)}                  | ${[undefined, undefined, 1, 2, 3]}
-		${scheduled(of(false), asyncScheduler)}                    | ${[undefined, undefined, false]}
-		${scheduled(of('a', 'a', 'a', 'a', 'a'), asyncScheduler)}  | ${[undefined, undefined, 'a', 'a']}
-		${scheduled(new BehaviorSubject('test2'), asyncScheduler)} | ${[undefined, undefined, 'test2']}
-		${scheduled(range(1, 5), asyncScheduler)}                  | ${[undefined, undefined, 1, 2, 3, 4, 5]}
-		${throwError(new Error(), asyncScheduler)}                 | ${[undefined, undefined, new Error()]}
-	`(
-		"returns $expected when given an observable which doesn't complete, then re-rendered with $observable",
-		async ({ observable, expected }) => {
-			const { result, rerender, waitForNextUpdate } = renderUseLatestValue([NEVER]);
-			rerender([observable]);
-			await waitForNextUpdate();
-			expect(result.all).toEqual(expected);
-		}
-	);
+	it('batches updates when the observable emits values synchronously', () => {
+		const observable = of(1, 2, 3);
+		const { result } = renderUseLatestValue([observable]);
+		expect(result.all).toEqual([undefined, 3]);
+	});
 
-	it.each`
-		observable                                                 | expected
-		${scheduled(of('e', 'f', 'g'), asyncScheduler)}            | ${[undefined, 'e', 'f', 'g', 'g']}
-		${scheduled(of(1, 2, 3), asyncScheduler)}                  | ${[undefined, 1, 2, 3, 3]}
-		${scheduled(of(false), asyncScheduler)}                    | ${[undefined, false, false]}
-		${scheduled(of('a', 'a', 'a', 'a', 'a'), asyncScheduler)}  | ${[undefined, 'a', 'a', 'a']}
-		${scheduled(new BehaviorSubject('test2'), asyncScheduler)} | ${[undefined, 'test2', 'test2']}
-		${scheduled(range(1, 5), asyncScheduler)}                  | ${[undefined, 1, 2, 3, 4, 5, 5]}
-		${throwError(new Error(), asyncScheduler)}                 | ${[undefined, new Error(), undefined]}
-	`(
-		'returns $expected when given $observable, then re-rendered with the same observable',
-		async ({ observable, expected }) => {
-			const { result, rerender, waitForNextUpdate } = renderUseLatestValue([observable]);
-			await waitForNextUpdate();
-			rerender([observable]);
-			expect(result.all).toEqual(expected);
-		}
-	);
+	it('does not batch updates when the observable emits values asynchronously', async () => {
+		const observable = scheduled(of(1, 2, 3), asyncScheduler);
+		const { result, waitForNextUpdate } = renderUseLatestValue([observable]);
+		await waitForNextUpdate();
+		expect(result.all).toEqual([undefined, 1, 2, 3]);
+	});
+
+	it('returns 1 when called with of(1), then called with an observable which never emits a value', () => {
+		const { result, rerender } = renderUseLatestValue([of(1)]);
+		rerender([NEVER]);
+		expect(result.current).toBe(1);
+	});
+
+	it('returns the latest emitted value from the observable the hook was last called with', () => {
+		const subject = new Subject();
+		const { result, rerender } = renderUseLatestValue([subject]);
+		act(() => subject.next(1));
+		const subject2 = new Subject();
+		rerender([subject2]);
+		act(() => subject2.next(10));
+		const subject3 = new Subject();
+		rerender([subject3]);
+		act(() => subject3.next(100));
+		expect(result.current).toBe(100);
+	});
+
+	it("returns the latest emitted value from the subject the hook was initially called with, when it's rendered with another subject which does emit a value", () => {
+		const subject = new Subject();
+		const { result, rerender } = renderUseLatestValue([subject]);
+		act(() => subject.next(1));
+		const subject2 = new Subject();
+		rerender([subject2]);
+		expect(result.current).toBe(1);
+	});
+
+	it('returns undefined when called with an observable which immediately completes', () => {
+		const { result } = renderUseLatestValue([EMPTY]);
+		expect(result.current).toBeUndefined();
+	});
+
+	it('returns undefined when called with an observable which never completes', () => {
+		const { result } = renderUseLatestValue([NEVER]);
+		expect(result.current).toBeUndefined();
+	});
+
+	it('returns "test2" when called with of("test"), then called with new BehaviorSubject("test2")', () => {
+		const { result, rerender } = renderUseLatestValue([of('test')]);
+		rerender([new BehaviorSubject('test2')]);
+		expect(result.current).toEqual('test2');
+	});
+
+	it('does not return values emitted from the first observable the hook was called with, when re-rendered with a different observable', async () => {
+		const subject = new Subject();
+		const { result, rerender } = renderUseLatestValue([subject]);
+		act(() => subject.next(1));
+		const subject2 = new Subject();
+		rerender([subject2]);
+		act(() => subject2.next(10));
+		act(() => subject.next(2));
+		act(() => subject.next(3));
+		act(() => subject.next(4));
+		expect(result.current).toBe(10);
+	});
+
+	it('unsubscribes from the observable when the component is unmounted', () => {
+		const subscription = new Subscription();
+		const unsubscribeSpy = jest.spyOn(subscription, 'unsubscribe');
+		const subject = new Subject();
+		jest.spyOn(subject, 'subscribe').mockReturnValue(subscription);
+
+		const { unmount } = renderUseLatestValue([subject]);
+		unmount();
+		expect(unsubscribeSpy).toBeCalledTimes(1);
+	});
+
+	it('unsubscribes from the first observable when the hook is re-rendered with a different observable', () => {
+		const subscription = new Subscription();
+		const unsubscribeSpy = jest.spyOn(subscription, 'unsubscribe');
+		const subject = new Subject();
+		jest.spyOn(subject, 'subscribe').mockReturnValue(subscription);
+
+		const { rerender } = renderUseLatestValue([subject]);
+		rerender([new Observable()]);
+		expect(unsubscribeSpy).toBeCalledTimes(1);
+	});
+
+	it('throws an error when called with an observable which throws an error', () => {
+		const error = new Error();
+		const observable = throwError(() => error);
+
+		const { result } = renderUseLatestValue([observable]);
+		expect(result.error).toBe(error);
+	});
+
+	it('does not throw an error when initially called with an observable which throws an error, and then is re-rendered with an observable which immediately completes', () => {
+		const error = new Error();
+		const observable = throwError(() => error);
+
+		const { result, rerender } = renderUseLatestValue([observable]);
+		rerender([EMPTY]);
+		expect(result.error).toBeUndefined();
+	});
+
+	it('returns undefined when initially called with an observable which throws an error, and then is re-rendered with an observable which immediately completes', () => {
+		const error = new Error();
+		const observable = throwError(() => error);
+
+		const { result, rerender } = renderUseLatestValue([observable]);
+		rerender([EMPTY]);
+		expect(result.current).toBeUndefined();
+	});
+
+	it('returns false when initially called with an observable which throws an error, and then is re-rendered with of(false)', async () => {
+		const error = new Error();
+		const observable = throwError(() => error);
+
+		const { result, rerender, waitForNextUpdate } = renderUseLatestValue([observable]);
+		rerender([scheduled(of(false), asyncScheduler)]);
+		await waitForNextUpdate();
+		expect(result.current).toBe(false);
+	});
+
+	it('does return values already emitted by the observable', () => {
+		const subject = new Subject();
+		act(() => subject.next(true));
+		const { result } = renderUseLatestValue([subject]);
+		expect(result.current).toBeUndefined();
+	});
 
 	it.each`
 		notObservable
@@ -228,51 +214,14 @@ describe.only('useLatestValue', () => {
 		expect(result.error).toBeInstanceOf(TypeError);
 	});
 
-	it('re throws errors thrown by the given observable', () => {
-		const error = new Error();
-		const { result } = renderUseLatestValue([throwError(() => error)]);
-		expect(result.error).toEqual(error);
+	it.each`
+		observable
+		${new Observable()}
+		${new Subject()}
+		${new BehaviorSubject(null)}
+		${new ReplaySubject(0)}
+	`('does not throw a TypeError when given $observable', ({ observable }) => {
+		const { result } = renderUseLatestValue([observable]);
+		expect(result.error).toBeUndefined();
 	});
-
-	it.each`
-		observable                      | expected
-		${of(1, 2, 3)}                  | ${[undefined, new Error(), undefined, 3]}
-		${of(false)}                    | ${[undefined, new Error(), undefined, false]}
-		${of('a', 'b', 'c', 'd')}       | ${[undefined, new Error(), undefined, 'd']}
-		${EMPTY}                        | ${[undefined, new Error(), undefined]}
-		${NEVER}                        | ${[undefined, new Error(), undefined]}
-		${NEVER.pipe(map(noop))}        | ${[undefined, new Error(), undefined]}
-		${of('a', 'a', 'a', 'a', 'a')}  | ${[undefined, new Error(), undefined, 'a']}
-		${new BehaviorSubject('test2')} | ${[undefined, new Error(), 'test2']}
-		${range(1, 5)}                  | ${[undefined, new Error(), undefined, 5]}
-		${throwError(new TypeError())}  | ${[undefined, new Error(), undefined, new TypeError()]}
-		${throwError('error')}          | ${[undefined, new Error(), undefined, 'error']}
-	`(
-		'returns $expected when given an observable which throws an error, then re-rendered with $observable',
-		({ observable, expected }) => {
-			const { result, rerender } = renderUseLatestValue([throwError(() => new Error())]);
-			rerender([observable]);
-			expect(result.all).toEqual(expected);
-		}
-	);
-
-	it.each`
-		observable                                                 | expected
-		${scheduled(of('e', 'f', 'g'), asyncScheduler)}            | ${[undefined, new Error(), undefined, 'e', 'f', 'g']}
-		${scheduled(of(1, 2, 3), asyncScheduler)}                  | ${[undefined, new Error(), undefined, 1, 2, 3]}
-		${scheduled(of(false), asyncScheduler)}                    | ${[undefined, new Error(), undefined, false]}
-		${scheduled(new BehaviorSubject('test2'), asyncScheduler)} | ${[undefined, new Error(), undefined, 'test2']}
-		${scheduled(range(1, 5), asyncScheduler)}                  | ${[undefined, new Error(), undefined, 1, 2, 3, 4, 5]}
-		${throwError(new Error(), asyncScheduler)}                 | ${[undefined, new Error(), undefined, new Error()]}
-	`(
-		'returns $expected when given an observable which throws an error, then re-rendered with $observable',
-		async ({ observable, expected }) => {
-			const { result, rerender, waitForNextUpdate } = renderUseLatestValue([
-				throwError(() => new Error()),
-			]);
-			rerender([observable]);
-			await waitForNextUpdate();
-			expect(result.all).toEqual(expected);
-		}
-	);
 });

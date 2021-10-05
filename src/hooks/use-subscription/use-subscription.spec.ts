@@ -1,5 +1,5 @@
 import { Renderer, renderHook, RenderHookResult } from '@testing-library/react-hooks';
-import { BehaviorSubject, from, Observable, Subject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { useSubscription } from './use-subscription';
 
 type useSubscriptionParams = Parameters<typeof useSubscription>;
@@ -14,52 +14,144 @@ function renderUseSubscriptionHook(
 }
 
 describe('useSubscription', () => {
-	it.each`
-		dependencies
-		${[]}
-		${[new Observable()]}
-		${[new BehaviorSubject(1)]}
-		${[[]]}
-		${[Number.POSITIVE_INFINITY]}
-		${['test']}
-		${[{}]}
-		${[() => {}]}
-	`(
-		'calls the subscriptionFactory callback once when called with $dependencies dependencies multiple times',
-		({ dependencies }) => {
-			const mockSubscription = new Subscription();
-			const mockSubscriptionFactory = jest.fn().mockReturnValue(mockSubscription);
-			const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, dependencies]);
-			rerender([mockSubscriptionFactory, dependencies]);
-			rerender([mockSubscriptionFactory, dependencies]);
-			rerender([mockSubscriptionFactory, dependencies]);
-			expect(mockSubscriptionFactory).toHaveBeenCalledTimes(1);
-		}
-	);
+	it('calls the subscriptionFactory', () => {
+		const mockSubscriptionFactory = jest.fn().mockReturnValue(new Subscription());
+		renderUseSubscriptionHook([mockSubscriptionFactory, []]);
+		expect(mockSubscriptionFactory).toHaveBeenCalled();
+	});
 
-	it.each`
-		firstDependencies     | secondDependencies    | thirdDependencies     | expectedNumberOfTimesCalled
-		${[/test/]}           | ${[/test/]}           | ${[/test/]}           | ${3}
-		${[new Observable()]} | ${[new Observable()]} | ${[new Observable()]} | ${3}
-		${[1, 3]}             | ${[1, 2]}             | ${[1, 2]}             | ${2}
-		${[true]}             | ${[{}]}               | ${[1]}                | ${3}
-		${['test']}           | ${['test']}           | ${['test']}           | ${1}
-		${[parseInt('asdf')]} | ${[Number.NaN]}       | ${[parseInt('asdf')]} | ${1}
-		${[new Date()]}       | ${[new Date()]}       | ${[new Date()]}       | ${3}
-		${[100]}              | ${[100]}              | ${[10]}               | ${2}
-		${[() => {}]}         | ${[() => {}]}         | ${[() => {}]}         | ${3}
-		${[from([1, 2, 3])]}  | ${[from([1, 2, 3])]}  | ${[from([1, 2, 3])]}  | ${3}
-	`(
-		'calls the subscriptionFactory callback $expectedNumberOfTimesCalled times when called with $firstDependencies dependencies, then $secondDependencies dependencies, then $thirdDependencies dependencies',
-		({ firstDependencies, secondDependencies, thirdDependencies, expectedNumberOfTimesCalled }) => {
-			const mockSubscription = new Subscription();
-			const mockSubscriptionFactory = jest.fn().mockReturnValue(mockSubscription);
-			const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, firstDependencies]);
-			rerender([mockSubscriptionFactory, secondDependencies]);
-			rerender([mockSubscriptionFactory, thirdDependencies]);
-			expect(mockSubscriptionFactory).toHaveBeenCalledTimes(expectedNumberOfTimesCalled);
-		}
-	);
+	it('calls the subscriptionFactory callback once when called with the same dependency array multiple times', () => {
+		const dependencies = ['test'];
+		const mockSubscriptionFactory = jest.fn().mockReturnValue(new Subscription());
+		const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, dependencies]);
+		rerender([mockSubscriptionFactory, dependencies]);
+		rerender([mockSubscriptionFactory, dependencies]);
+		rerender([mockSubscriptionFactory, dependencies]);
+		expect(mockSubscriptionFactory).toHaveBeenCalledTimes(1);
+	});
+
+	it('does not call unsubscribe on the returned subscription when the hook is called with the same dependency array multiple times', () => {
+		const dependencies = ['test'];
+		const mockUnsubscribe = jest.fn();
+		const mockSubscription = {
+			closed: false,
+			unsubscribe: mockUnsubscribe,
+		};
+		const mockSubscriptionFactory = jest.fn().mockReturnValue(mockSubscription);
+		const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, dependencies]);
+		rerender([mockSubscriptionFactory, dependencies]);
+		rerender([mockSubscriptionFactory, dependencies]);
+		rerender([mockSubscriptionFactory, dependencies]);
+		expect(mockUnsubscribe).not.toHaveBeenCalled();
+	});
+
+	it('calls the subscriptionFactory callback once when called multiple times with a new dependency array containing the same object reference', () => {
+		const object = {};
+		const mockSubscriptionFactory = jest.fn().mockReturnValue(new Subscription());
+		const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, [object]]);
+		rerender([mockSubscriptionFactory, [object]]);
+		rerender([mockSubscriptionFactory, [object]]);
+		rerender([mockSubscriptionFactory, [object]]);
+		expect(mockSubscriptionFactory).toHaveBeenCalledTimes(1);
+	});
+
+	it('does not call unsubscribe on the returned subscription when the hook is called multiple times with a new dependency array containing the same object reference', () => {
+		const object = {};
+		const mockUnsubscribe = jest.fn();
+		const mockSubscription = {
+			closed: false,
+			unsubscribe: mockUnsubscribe,
+		};
+		const mockSubscriptionFactory = jest.fn().mockReturnValue(mockSubscription);
+		const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, [object]]);
+		rerender([mockSubscriptionFactory, [object]]);
+		rerender([mockSubscriptionFactory, [object]]);
+		rerender([mockSubscriptionFactory, [object]]);
+		expect(mockUnsubscribe).not.toHaveBeenCalled();
+	});
+
+	it('calls the subscriptionFactory callback once when called multiple times with a new dependency array containing the same value', () => {
+		const mockSubscriptionFactory = jest.fn().mockReturnValue(new Subscription());
+		const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, [1]]);
+		rerender([mockSubscriptionFactory, [1]]);
+		rerender([mockSubscriptionFactory, [1]]);
+		rerender([mockSubscriptionFactory, [1]]);
+		expect(mockSubscriptionFactory).toHaveBeenCalledTimes(1);
+	});
+
+	it('does not call unsubscribe on the returned subscription when the hook is called multiple times with a new dependency array containing the same value', () => {
+		const mockUnsubscribe = jest.fn();
+		const mockSubscription = {
+			closed: false,
+			unsubscribe: mockUnsubscribe,
+		};
+		const mockSubscriptionFactory = jest.fn().mockReturnValue(mockSubscription);
+		const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, [1]]);
+		rerender([mockSubscriptionFactory, [1]]);
+		rerender([mockSubscriptionFactory, [1]]);
+		rerender([mockSubscriptionFactory, [1]]);
+		expect(mockUnsubscribe).not.toHaveBeenCalled();
+	});
+
+	it('does not use loose equality when checking if the dependencies have changed', () => {
+		const mockSubscriptionFactory = jest.fn().mockReturnValue(new Subscription());
+		const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, [1]]);
+		rerender([mockSubscriptionFactory, ['1']]);
+		expect(mockSubscriptionFactory).toHaveBeenCalledTimes(2);
+	});
+
+	it('recalls the subscriptionFactory when the dependencies change', () => {
+		const mockSubscriptionFactory = jest.fn().mockReturnValue(new Subscription());
+		const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, ['a']]);
+		rerender([mockSubscriptionFactory, ['b']]);
+		expect(mockSubscriptionFactory).toHaveBeenCalledTimes(2);
+	});
+
+	it('calls unsubscribe on the previous subscription when the dependencies change', () => {
+		const mockUnsubscribe = jest.fn();
+		const firstSubscription = {
+			closed: false,
+			unsubscribe: mockUnsubscribe,
+		};
+		const { rerender } = renderUseSubscriptionHook([
+			jest.fn().mockReturnValue(firstSubscription),
+			['a'],
+		]);
+		rerender([jest.fn().mockReturnValue(new Subscription()), ['b']]);
+		expect(mockUnsubscribe).toHaveBeenCalledTimes(1);
+	});
+
+	it('calls the subscriptionFactory twice when called twice with [{ a: 1 }], then [{ a: 1 }]', () => {
+		const mockSubscriptionFactory = jest.fn().mockReturnValue(new Subscription());
+		const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, [{ a: 1 }]]);
+		rerender([mockSubscriptionFactory, [{ a: 1 }]]);
+		expect(mockSubscriptionFactory).toHaveBeenCalledTimes(2);
+	});
+
+	it('calls the subscriptionFactory 4 times when called with [1], [2], [1], [2]', () => {
+		const mockSubscriptionFactory = jest
+			.fn()
+			.mockReturnValue(jest.fn().mockReturnValue(new Subscription()));
+		const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, [1]]);
+		rerender([mockSubscriptionFactory, [2]]);
+		rerender([mockSubscriptionFactory, [1]]);
+		rerender([mockSubscriptionFactory, [2]]);
+		expect(mockSubscriptionFactory).toHaveBeenCalledTimes(4);
+	});
+
+	it('calls unsubscribe on each of the previous subscriptions when the hook is called with [1], [2], [1], [2]', () => {
+		const mockUnsubscribe = jest.fn();
+		const mockSubscription = {
+			closed: false,
+			unsubscribe: mockUnsubscribe,
+		};
+		const mockSubscriptionFactory = jest.fn().mockReturnValue(mockSubscription);
+		const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, [1]]);
+		rerender([mockSubscriptionFactory, [2]]);
+		rerender([mockSubscriptionFactory, [1]]);
+		rerender([mockSubscriptionFactory, [2]]);
+		expect(mockUnsubscribe).toHaveBeenCalledTimes(3);
+	});
 
 	it('calls unsubscribe on the returned subscription when the hook is unmounted', async () => {
 		const mockUnsubscribe = jest.fn();
@@ -84,60 +176,4 @@ describe('useSubscription', () => {
 		unmount();
 		await waitFor(() => expect(mockUnsubscribe).not.toBeCalled());
 	});
-
-	it.each`
-		dependencies
-		${[new Date()]}
-		${[() => {}]}
-		${[new Observable()]}
-		${[Object.getPrototypeOf(new Observable())]}
-		${['test']}
-		${[{ [Symbol.iterator]: () => 1 }]}
-		${[undefined]}
-	`(
-		'does not call unsubscribe on the returned subscription when called with $dependencies dependencies multiple times',
-		async ({ dependencies }) => {
-			const mockUnsubscribe = jest.fn();
-			const mockSubscription = {
-				closed: true,
-				unsubscribe: mockUnsubscribe,
-			};
-			const mockSubscriptionFactory = jest.fn().mockReturnValue(mockSubscription);
-			const { waitFor } = renderUseSubscriptionHook([mockSubscriptionFactory, dependencies]);
-			await waitFor(() => expect(mockUnsubscribe).not.toBeCalled());
-		}
-	);
-
-	it.each`
-		firstDependencies     | secondDependencies          | thirdDependencies     | expectedNumberOfTimesCalled
-		${[1, 3]}             | ${[1, 2]}                   | ${[1, 2]}             | ${1}
-		${['test']}           | ${['test']}                 | ${['test']}           | ${0}
-		${[new Observable()]} | ${[new Observable()]}       | ${[new Observable()]} | ${2}
-		${[true]}             | ${[{}]}                     | ${[1]}                | ${2}
-		${['test1']}          | ${['test2']}                | ${['test3']}          | ${2}
-		${[parseInt('asdf')]} | ${[Number.NaN]}             | ${[parseInt('asdf')]} | ${0}
-		${[new Date()]}       | ${[new Date()]}             | ${[new Date()]}       | ${2}
-		${[{ a: 1 }]}         | ${[{ a: 1 }]}               | ${[{ a: 1 }]}         | ${2}
-		${[]}                 | ${[]}                       | ${[]}                 | ${0}
-		${[new Subject()]}    | ${[new BehaviorSubject(1)]} | ${[new Observable()]} | ${2}
-		${[null]}             | ${[undefined]}              | ${[null]}             | ${2}
-	`(
-		'calls unsubscribe on the subscription $expectedNumberOfTimesCalled times when called the $firstDependencies dependencies, then $secondDependencies dependencies, then $thirdDependencies dependencies',
-		async ({
-			firstDependencies,
-			secondDependencies,
-			thirdDependencies,
-			expectedNumberOfTimesCalled,
-		}) => {
-			const mockUnsubscribe = jest.fn();
-			const mockSubscriptionFactory = jest.fn().mockImplementation(() => ({
-				closed: false,
-				unsubscribe: mockUnsubscribe,
-			}));
-			const { rerender } = renderUseSubscriptionHook([mockSubscriptionFactory, firstDependencies]);
-			rerender([mockSubscriptionFactory, secondDependencies]);
-			rerender([mockSubscriptionFactory, thirdDependencies]);
-			expect(mockUnsubscribe).toHaveBeenCalledTimes(expectedNumberOfTimesCalled);
-		}
-	);
 });

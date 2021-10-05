@@ -1,14 +1,6 @@
 import { useObservable } from './use-observable';
-import {
-	AsyncSubject,
-	BehaviorSubject,
-	ConnectableObservable,
-	Observable,
-	ReplaySubject,
-	Subject,
-} from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subject } from 'rxjs';
 import { Renderer, renderHook, RenderHookResult } from '@testing-library/react-hooks';
-import React from 'react';
 
 type useObservableParams = Parameters<typeof useObservable>;
 type useObservableReturn = ReturnType<typeof useObservable>;
@@ -22,91 +14,89 @@ function renderUseObservableHook(
 }
 
 describe('useObservable', () => {
-	it.each`
-		observable
-		${new Observable()}
-		${new ConnectableObservable(new Observable(), () => new Subject())}
-		${new Subject()}
-		${new BehaviorSubject('')}
-		${new ReplaySubject(0)}
-		${new AsyncSubject()}
-	`('returns the $observable produced by the observableFactory callback', ({ observable }) => {
-		const mockObservableFactory = jest.fn().mockReturnValue(observable);
-		const { result } = renderUseObservableHook([mockObservableFactory]);
+	it('calls the observableFactory', () => {
+		const mockSubscriptionFactory = jest.fn().mockReturnValue(new Observable());
+		renderUseObservableHook([mockSubscriptionFactory, []]);
+		expect(mockSubscriptionFactory).toHaveBeenCalled();
+	});
+
+	it('returns the same observable returned from the observableFactory callback', () => {
+		const observable = new Observable();
+		const mockValueFactory = jest.fn().mockReturnValue(observable);
+		const { result } = renderUseObservableHook([mockValueFactory, []]);
 		expect(result.current).toBe(observable);
 	});
 
-	it('calls the observableFactory callback once when called with no dependencies', () => {
-		const mockObservable = new Observable();
-		const mockObservableFactory = jest.fn().mockReturnValue(mockObservable);
-		const { rerender } = renderUseObservableHook([mockObservableFactory]);
-		rerender([mockObservableFactory]);
-		rerender([mockObservableFactory]);
-		rerender([mockObservableFactory]);
+	it('calls the observableFactory callback once when called with the same dependency array multiple times', () => {
+		const dependencies = ['test'];
+		const mockObservableFactory = jest.fn().mockReturnValue(new Observable());
+		const { rerender } = renderUseObservableHook([mockObservableFactory, dependencies]);
+		rerender([mockObservableFactory, dependencies]);
+		rerender([mockObservableFactory, dependencies]);
+		rerender([mockObservableFactory, dependencies]);
 		expect(mockObservableFactory).toHaveBeenCalledTimes(1);
 	});
 
-	it.each`
-		dependencies
-		${[]}
-		${[new Observable()]}
-		${[new BehaviorSubject(1)]}
-		${[[]]}
-		${[Number.POSITIVE_INFINITY]}
-		${['test']}
-		${[{}]}
-		${[() => {}]}
-	`(
-		'calls the observableFactory callback once when called with $dependencies dependencies multiple times',
-		({ dependencies }) => {
-			const mockObservable = new Observable();
-			const mockObservableFactory = jest.fn().mockReturnValue(mockObservable);
-			const { rerender } = renderUseObservableHook([mockObservableFactory, dependencies]);
-			rerender([mockObservableFactory, dependencies]);
-			rerender([mockObservableFactory, dependencies]);
-			rerender([mockObservableFactory, dependencies]);
-			expect(mockObservableFactory).toHaveBeenCalledTimes(1);
-		}
-	);
+	it('calls the observableFactory callback once when called multiple times with a new dependency array containing the same object reference', () => {
+		const object = {};
+		const mockObservableFactory = jest.fn().mockReturnValue(new Observable());
+		const { rerender } = renderUseObservableHook([mockObservableFactory, [object]]);
+		rerender([mockObservableFactory, [object]]);
+		rerender([mockObservableFactory, [object]]);
+		rerender([mockObservableFactory, [object]]);
+		expect(mockObservableFactory).toHaveBeenCalledTimes(1);
+	});
 
-	it.each`
-		firstDependencies     | secondDependencies    | thirdDependencies     | expectedNumberOfTimesCalled
-		${['test']}           | ${['test']}           | ${['test']}           | ${1}
-		${[1, 2, '']}         | ${[1, 3, '']}         | ${[1, 2, '']}         | ${3}
-		${[1]}                | ${[1, 2]}             | ${[1, 2]}             | ${1}
-		${[true]}             | ${[{}]}               | ${[1]}                | ${3}
-		${['test']}           | ${['test']}           | ${[]}                 | ${1}
-		${[parseInt('asdf')]} | ${[Number.NaN]}       | ${[parseInt('asdf')]} | ${1}
-		${[new Observable()]} | ${[new Observable()]} | ${[new Observable()]} | ${3}
-		${[[]]}               | ${[[]]}               | ${[[]]}               | ${3}
-		${[100]}              | ${[100]}              | ${[100]}              | ${1}
-		${[() => {}]}         | ${[() => {}]}         | ${[() => {}]}         | ${3}
-	`(
-		'calls the observableFactory callback $expectedNumberOfTimesCalled times when called with $firstDependencies dependencies, then $secondDependencies dependencies, then $thirdDependencies dependencies',
-		({ firstDependencies, secondDependencies, thirdDependencies, expectedNumberOfTimesCalled }) => {
-			const mockObservable = new Observable();
-			const mockObservableFactory = jest.fn().mockReturnValue(mockObservable);
-			const { rerender } = renderUseObservableHook([mockObservableFactory, firstDependencies]);
-			rerender([mockObservableFactory, secondDependencies]);
-			rerender([mockObservableFactory, thirdDependencies]);
-			expect(mockObservableFactory).toHaveBeenCalledTimes(expectedNumberOfTimesCalled);
-		}
-	);
+	it('calls the observableFactory callback once when called multiple times each a new dependency array containing the same value', () => {
+		const mockObservableFactory = jest.fn().mockReturnValue(new Observable());
+		const { rerender } = renderUseObservableHook([mockObservableFactory, [1]]);
+		rerender([mockObservableFactory, [1]]);
+		rerender([mockObservableFactory, [1]]);
+		rerender([mockObservableFactory, [1]]);
+		expect(mockObservableFactory).toHaveBeenCalledTimes(1);
+	});
 
-	it.each`
-		dependencies
-		${''}
-		${true}
-		${parseInt('asdf')}
-		${Symbol()}
-		${BigInt(1)}
-		${() => {}}
-		${React.createElement('div')}
-	`('throws a types error when called with $dependencies dependencies', ({ dependencies }) => {
-		const mockObservable = new Observable();
-		const mockObservableFactory = jest.fn().mockReturnValue(mockObservable);
-		const { result } = renderUseObservableHook([mockObservableFactory, dependencies]);
-		expect(result.error).toBeInstanceOf(TypeError);
+	it('returns the latest observable produced by the observableFactory callback when the dependencies have changed', () => {
+		const firstObservable = new Observable();
+		const secondObservable = new Observable();
+		const thirdObservable = new Observable();
+		const { rerender, result } = renderUseObservableHook([
+			jest.fn().mockReturnValue(firstObservable),
+			[1],
+		]);
+		rerender([jest.fn().mockReturnValue(secondObservable), [2]]);
+		rerender([jest.fn().mockReturnValue(thirdObservable), [3]]);
+		expect(result.current).toBe(thirdObservable);
+	});
+
+	it('does not use loose equality when checking if the dependencies have changed', () => {
+		const mockObservableFactory = jest.fn().mockReturnValue(new Observable());
+		const { rerender } = renderUseObservableHook([mockObservableFactory, [1]]);
+		rerender([mockObservableFactory, ['1']]);
+		expect(mockObservableFactory).toHaveBeenCalledTimes(2);
+	});
+
+	it('recalls the observableFactory when the dependencies change', () => {
+		const mockObservableFactory = jest.fn().mockReturnValue(new Observable());
+		const { rerender } = renderUseObservableHook([mockObservableFactory, ['a']]);
+		rerender([mockObservableFactory, ['b']]);
+		expect(mockObservableFactory).toHaveBeenCalledTimes(2);
+	});
+
+	it('calls the observableFactory twice when called twice with dependencies containing different objects with the same keys and values', () => {
+		const mockObservableFactory = jest.fn().mockReturnValue(new Observable());
+		const { rerender } = renderUseObservableHook([mockObservableFactory, [{ a: 1 }]]);
+		rerender([mockObservableFactory, [{ a: 1 }]]);
+		expect(mockObservableFactory).toHaveBeenCalledTimes(2);
+	});
+
+	it('calls the observableFactory 4 times when called 4 times with alternating values', () => {
+		const mockObservableFactory = jest.fn().mockReturnValue(new Observable());
+		const { rerender } = renderUseObservableHook([mockObservableFactory, [1]]);
+		rerender([mockObservableFactory, [2]]);
+		rerender([mockObservableFactory, [1]]);
+		rerender([mockObservableFactory, [2]]);
+		expect(mockObservableFactory).toHaveBeenCalledTimes(4);
 	});
 
 	it.each`
@@ -119,12 +109,29 @@ describe('useObservable', () => {
 		${new Event('')}
 		${12345}
 		${true}
+		${/test/}
+		${() => {}}
 	`(
-		'throws a types error when observableFactory callback returns $observableFactoryReturnValue',
+		'throws a types error when the observableFactory callback returns $observableFactoryReturnValue',
 		({ observableFactoryReturnValue }) => {
-			const mockObservableFactory = jest.fn().mockReturnValue(observableFactoryReturnValue);
-			const { result } = renderUseObservableHook([mockObservableFactory]);
+			const observableFactory = jest.fn().mockReturnValue(observableFactoryReturnValue);
+			const { result } = renderUseObservableHook([observableFactory]);
 			expect(result.error).toBeInstanceOf(TypeError);
+		}
+	);
+
+	it.each`
+		observableFactoryReturnValue
+		${new Observable()}
+		${new Subject()}
+		${new BehaviorSubject(null)}
+		${new ReplaySubject()}
+	`(
+		'does not throw a type error when the observableFactory returns $observableFactoryReturnValue',
+		({ observableFactoryReturnValue }) => {
+			const observableFactory = jest.fn().mockReturnValue(observableFactoryReturnValue);
+			const { result } = renderUseObservableHook([observableFactory]);
+			expect(result.error).toBeUndefined();
 		}
 	);
 });

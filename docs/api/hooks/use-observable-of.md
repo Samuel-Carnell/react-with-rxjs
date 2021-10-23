@@ -6,15 +6,13 @@ next: false
 
 ## useObservableOf
 
-Returns an observable persisting across renders. Emitting `value` on the initial render, then emitting `value` again if it has changed in between re-renders.
+Returns an observable of distinct values passed, with this hook checking if the value has changed on each render.
 
 ```ts
 function useObservableOf<TValue>(value: TValue): Observable<TValue>;
 ```
 
-This hook will return an observable which emits `value` on the initial render, then on subsequent re-renders will check if value has changed between the current and previous render, emitting the updated `value` if it has. Similar to RxJS' [BehaviorSubjects](https://rxjs.dev/api/index/class/BehaviorSubject) whenever a new observer subscribes to the observable, the observer immediately receives the last emitted `value`, then listens for new values to be emitted. The instance of the created observable will also persist across the components lifecycle to avoid issues with consumer hooks subscribing to a new instance on each render.
-
-This hook is intended for creating observable from values that are returned from built-in or third party hooks that don't themselves return observables, such as `useContext`.
+This hook is intended for converting raw values returned from other hooks into observable of those values, emitting each time the raw value changes.
 
 :::tip Comparison checking
 Internally this hook uses the `Object.is` function to compare the old and new values, determining if it has changed between re-renders.

@@ -41,7 +41,7 @@ export function useStateObservable<TState>(): [
 ];
 
 /**
- * Returns an observable of the current state (`state$`) and a function to update the current state (`setState`).
+ * Returns an observable of the current state and a function to update the current state.
  */
 export function useStateObservable<TState>(
 	initialState: TState | Factory<TState>

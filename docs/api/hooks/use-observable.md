@@ -22,7 +22,7 @@ The dependency array should be used to specify all closure variables the `observ
 :::
 
 :::warning
-Similar to the `useEffect` hook, the length of the dependency array should stay the same between re-renders. If the length does change, this hook will log an error in the console when the app is in development mode.
+Similar to the `useEffect` hook, the length of the dependency array should stay the same across re-renders. Changes in the length of the array could lead to unpredictable results.
 :::
 
 ### Example

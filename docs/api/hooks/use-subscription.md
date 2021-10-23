@@ -6,7 +6,7 @@ next: false
 
 ## useSubscription
 
-Establishes a new subscription using the `subscriptionFactory`. This subscription persists across renders, and is destroyed when the component unmounts. Only being re-established if any of the dependencies change, destroying the previous subscription in the process.
+Establishes a new subscription using the given `subscriptionFactory`. This subscription persists across renders, and is destroyed when the component unmounts. If any of the dependencies change between render, the previous subscription will be destroy and a new subscription established using the `subscriptionFactory`.
 
 ```ts
 function useSubscription(
@@ -15,9 +15,9 @@ function useSubscription(
 ): void;
 ```
 
-This hook is useful in scenarios where you need to pass a custom observer to the subscription.
-
+:::tip Concurrent mode safety
 To make this hook concurrent mode safe the `subscriptionFactory` will be called after the component initially mounts. You can find out more about concurrent mode safety [here](/guide/core-concepts#concurrent-mode-safety).
+:::
 
 :::tip
 Before using this hook check that your use case isn't already covered by [useLatestValue](/api/hooks/use-latest-value) or [useIsComplete](/api/hooks/use-is-complete).
@@ -26,21 +26,3 @@ Before using this hook check that your use case isn't already covered by [useLat
 :::warning
 Similar to the `useEffect` hook, the length of the dependency array should stay the same across re-renders. Changes in the length of the array could lead to unpredictable results.
 :::
-
-### Example
-
-Example with [useEventObservable](/api/hooks/use-event-observable).
-
-```jsx
-// Create an observable of click events and a function to emit a click event
-const [click$, onClick] = useEventObservable();
-
-// Listen for and log click events
-useSubscription({
-	next() {
-		console.log('I was clicked');
-	},
-});
-
-<button click={onClick} />;
-```

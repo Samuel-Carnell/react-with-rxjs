@@ -1,4 +1,4 @@
-import { useThrowComponentError } from 'hooks/internal';
+import { useThrowComponentError } from 'internal';
 import { useSubscription } from 'hooks/use-subscription';
 import { useState } from 'react';
 import { BehaviorSubject, isObservable, Observable } from 'rxjs';

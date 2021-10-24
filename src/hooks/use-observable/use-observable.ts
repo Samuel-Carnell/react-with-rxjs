@@ -1,6 +1,5 @@
 import { isObservable, Observable } from 'rxjs';
-import { useFactory } from 'hooks/internal';
-import { isFunction } from 'helpers';
+import { useFactory, isFunction } from 'internal';
 
 /**
  * Uses the provided `observableFactory` to compute the returned observable. This observable persists across renders,

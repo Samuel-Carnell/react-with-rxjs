@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useHasInputChanged } from 'hooks/internal/use-has-input-changed';
+import { useHasInputChanged } from '../use-has-input-changed';
 
 export function useFactory<TValue>(
 	factory: () => TValue,

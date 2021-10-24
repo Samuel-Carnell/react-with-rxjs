@@ -1,4 +1,4 @@
-import { useHasInputChanged, useThrowComponentError } from 'hooks/internal';
+import { useHasInputChanged, useThrowComponentError } from 'internal';
 import { useSubscription } from 'hooks/use-subscription';
 import { useLayoutEffect, useState } from 'react';
 import { isObservable, Observable } from 'rxjs';

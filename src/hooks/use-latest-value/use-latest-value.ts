@@ -1,7 +1,6 @@
-import { useThrowComponentError } from 'internal';
-import { useSubscription } from 'hooks/use-subscription';
 import { useState } from 'react';
 import { BehaviorSubject, isObservable, Observable } from 'rxjs';
+import { useThrowComponentError, useSubscriptionInternal } from 'internal';
 
 function isBehaviorSubject(source$: Observable<unknown>): source$ is BehaviorSubject<unknown> {
 	return 'getValue' in source$;
@@ -35,7 +34,7 @@ export function useLatestValue(source$: Observable<unknown>): unknown {
 		return isBehaviorSubject(source$) ? source$.getValue() : undefined;
 	});
 
-	useSubscription(() => {
+	useSubscriptionInternal(() => {
 		return source$.subscribe({
 			next(value: unknown): void {
 				setLatestValue(() => value);

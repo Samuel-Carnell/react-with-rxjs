@@ -1,6 +1,5 @@
-import { useLayoutEffect } from 'react';
 import { SubscriptionLike } from 'rxjs';
-import { isFunction } from 'internal';
+import { isFunction, useSubscriptionInternal } from 'internal';
 
 /**
  * Establishes a new subscription using the given `subscriptionFactory`. This subscription persists across renders, and
@@ -23,12 +22,5 @@ export function useSubscription(
 		);
 	}
 
-	useLayoutEffect(() => {
-		const subscription = subscriptionFactory();
-		return () => {
-			if (!subscription.closed) {
-				subscription.unsubscribe();
-			}
-		};
-	}, dependencies);
+	useSubscriptionInternal(subscriptionFactory, dependencies);
 }

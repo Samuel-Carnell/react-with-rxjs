@@ -97,7 +97,7 @@ describe('useObservableOf', () => {
 		});
 
 		rerender([thirdObject]);
-		expect(mockNext).toHaveBeenLastCalledWith(thirdObject);
+		expect(mockNext.mock.calls[1][0]).toBe(thirdObject);
 
 		subscription.unsubscribe();
 	});

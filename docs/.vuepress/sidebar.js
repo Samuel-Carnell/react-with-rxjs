@@ -10,6 +10,7 @@ module.exports = {
 				'/api/hooks/use-subscription',
 				'/api/hooks/use-state-observable',
 				'/api/hooks/use-event-observable',
+				'/api/hooks/use-context-observable',
 				'/api/hooks/use-observable-of',
 			],
 		},

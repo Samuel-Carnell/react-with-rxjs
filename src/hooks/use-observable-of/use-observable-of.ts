@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { useFactory, useHasInputChanged } from 'hooks/internal';
+import { useFactory, useHasInputChanged } from 'internal';
 
 /**
  * Returns an observable of distinct values passed, with this hook checking if the value has changed on each render.

@@ -1,6 +1,6 @@
-import { isFunction } from 'helpers';
 import { useLayoutEffect } from 'react';
 import { SubscriptionLike } from 'rxjs';
+import { isFunction } from 'internal';
 
 /**
  * Establishes a new subscription using the given `subscriptionFactory`. This subscription persists across renders, and

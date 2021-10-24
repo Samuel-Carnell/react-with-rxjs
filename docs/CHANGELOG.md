@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.0 (2021-10-24)
+
+### Features
+
+* adds a useContextObservable ([de4bedb](https://github.com/Samuel-Carnell/react-with-rxjs/commit/de4bedbdfb2d6499855d145f9ab646d1eeea1604))
+* **useEventObservable:** adds a shorthand alias ([b1f76f7](https://github.com/Samuel-Carnell/react-with-rxjs/commit/b1f76f717c8bf3ecde4551bc67e8cab101c49cb0))
+
+
+### Bug Fixes
+
+* export useLatestValue ([455747f](https://github.com/Samuel-Carnell/react-with-rxjs/commit/455747ff9970abe707b170a6560b73968c9a90c4))
+
 ## 1.1.1 (2021-10-05)
 
 ### Bug Fixes

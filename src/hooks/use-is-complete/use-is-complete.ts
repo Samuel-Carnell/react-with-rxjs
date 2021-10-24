@@ -1,7 +1,6 @@
-import { useHasInputChanged, useThrowComponentError } from 'internal';
-import { useSubscription } from 'hooks/use-subscription';
 import { useLayoutEffect, useState } from 'react';
 import { isObservable, Observable } from 'rxjs';
+import { useHasInputChanged, useThrowComponentError, useSubscriptionInternal } from 'internal';
 
 /**
  * Subscribes to the given observable and returns `true` if its complete, otherwise `false` until it does complete. If
@@ -25,7 +24,7 @@ export function useIsComplete(source$: Observable<unknown>): boolean {
 		}
 	}, [hasSource$Changed]);
 
-	useSubscription(() => {
+	useSubscriptionInternal(() => {
 		return source$.subscribe({
 			complete(): void {
 				setIsComplete(true);

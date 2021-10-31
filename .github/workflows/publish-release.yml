@@ -12,6 +12,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Install jq
+        run: sudo apt-get install -y jq
       - uses: ./.github/actions/setup-env
       - name: yarn build
         run: yarn build

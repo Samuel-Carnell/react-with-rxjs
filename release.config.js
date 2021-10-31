@@ -47,6 +47,12 @@ module.exports = {
 			},
 		],
 		[
+			'@semantic-release/exec',
+			{
+				prepareCmd: './copy-version.sh',
+			},
+		],
+		[
 			'@semantic-release/git',
 			{
 				assets: ['dist/**', 'docs/CHANGELOG.md', 'package.json'],

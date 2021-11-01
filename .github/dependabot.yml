@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: npm
     commit-message:
       prefix: 'chore'
-      include-scope: true
+      include: 'scope'
     directory: '/'
     schedule:
       interval: daily

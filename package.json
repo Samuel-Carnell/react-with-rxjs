@@ -1,6 +1,6 @@
 {
   "name": "react-with-rxjs",
-  "version": "0.0.0-development",
+  "version": "1.2.1",
   "private": true,
   "description": "A set of hooks, HOCs, and components for creating and consuming RxJS observables.",
   "main": "index.umd.js",

@@ -12083,12 +12083,12 @@ run-queue@^1.0.0, run-queue@^1.0.3:
   dependencies:
     aproba "^1.1.1"
 
-rxjs@^7.2.0:
-  version "7.3.1"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.3.1.tgz#cc375521f9e238b474fe552b0b9fd1be33d08099"
-  integrity sha512-vNenx7gqjPyeKpRnM6S5Ksm/oFTRijWWzYlRON04KaehZ3YjDwEmVjGUGo0TKWVjeNXOujVRlh0K1drUbcdPkw==
+rxjs@^7.5.3:
+  version "7.5.3"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.5.3.tgz#1359f8a4704797bee74357d65a125dbc7d8f4a91"
+  integrity sha512-6162iC/N7L7K8q3UvdOMWix1ju+esADGrDaPrTu5XJmCv69YNdYoUaop/iatN8GHK+YHOdszPP+qygA0yi04zQ==
   dependencies:
-    tslib "~2.1.0"
+    tslib "^2.1.0"
 
 safe-buffer@5.1.2, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"
@@ -13450,7 +13450,7 @@ ts-pnp@^1.1.6:
   resolved "https://registry.yarnpkg.com/ts-pnp/-/ts-pnp-1.2.0.tgz#a500ad084b0798f1c3071af391e65912c86bca92"
   integrity sha512-csd+vJOb/gkzvcCHgTGSChYpy5f1/XKNsmvBGO4JXS+z1v2HobugDz4s1IeFXM3wZB44uczs+eazB5Q/ccdhQw==
 
-tslib@2.1.0, tslib@~2.1.0:
+tslib@2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.1.0.tgz#da60860f1c2ecaa5703ab7d39bc05b6bf988b97a"
   integrity sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==
@@ -13459,6 +13459,11 @@ tslib@^1.8.1, tslib@^1.9.0:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
+
+tslib@^2.1.0:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
+  integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
 
 tsutils@^3.21.0:
   version "3.21.0"

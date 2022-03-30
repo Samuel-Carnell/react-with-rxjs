@@ -5,24 +5,35 @@
 
 # React with RxJS
 
-A set of hooks for creating and consuming RxJS observables.
+> A single API for binding RXJS Observables to your React components.
 
-## Installation
-
-Run either of the following commands depending on your package manager. Both [RxJS](https://www.npmjs.com/package/rxjs) and [React](https://www.npmjs.com/package/react) are required as peer dependencies.
-
-NPM -
+## Install
 
 ```bash
 npm install react-with-rxjs
 ```
 
-Yarn -
-
-```bash
-yarn add react-with-rxjs
-```
-
 ## Usage
 
+```tsx
+const useTicks = bind(() => {
+	return { tick: interval(100).pipe(take(1000)) };
+});
+
+function Ticks() {
+	const { tick } = useTicks();
+	return (
+		<div style={{ textAlign: 'center' }}>
+			<h2>Timer: {tick}</h2>
+		</div>
+	);
+}
+```
+
+## Documentation
+
 Full documentation can be found [here](https://samuel-carnell.github.io/react-with-rxjs-docs/)
+
+## License
+
+MIT License | Copyright (c) 2022 Samuel Carnell

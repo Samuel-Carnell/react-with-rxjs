@@ -10,6 +10,6 @@ module.exports = {
 		'type-enum': [2, 'always', commitTypes],
 		'body-max-line-length': [1, 'always', 100],
 		'header-max-length': [1, 'always', 100],
-		'body-empty': [2, 'never'],
+		'body-empty': [1, 'never'],
 	},
 };

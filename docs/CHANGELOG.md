@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.0 (2022-04-06)
+
+### ⚠ BREAKING CHANGES
+
+* Removes the existing hooks and adds a new bind API.  This new bind API will, 
+given a callback function, convert the arguments the hook was called with into observable, call the
+callback with those observables and bind any observables returned from the callback to the
+components state. The hook will then resolve and return the latest emitted from those observables.
+
+### Features
+
+* replaces hooks with bind api ([e176941](https://github.com/Samuel-Carnell/react-with-rxjs/commit/e176941440f6f4fffe07995d851bbc490fb8f824))
+
 ## 1.2.1 (2021-11-20)
 
 ## 1.2.0 (2021-10-24)

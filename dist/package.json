@@ -1,6 +1,6 @@
 {
   "name": "react-with-rxjs",
-  "version": "1.2.1",
+  "version": "2.0.0",
   "private": false,
   "description": "A set of hooks, HOCs, and components for creating and consuming RxJS observables.",
   "main": "index.umd.js",
@@ -25,7 +25,7 @@
   "license": "MIT",
   "homepage": "https://samuel-carnell.github.io/react-with-rxjs-docs/",
   "peerDependencies": {
-    "react": "^17.0.2",
-    "rxjs": "^7.2.0"
+    "react": "18.0.0",
+    "rxjs": "7.5.5"
   }
 }

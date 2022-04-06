@@ -7,8 +7,10 @@ module.exports = {
 		repo: 'samuel-carnell/react-with-rxjs',
 		editLinks: false,
 		nav: [
-			{ text: 'Guide', link: '/guide/core-concepts' },
-			{ text: 'API', link: '/api/hooks/use-observable' },
+			{ text: 'Guide', link: '/guide/motivation' },
+			{ text: 'API', link: '/api/bind-hook' },
+			{ text: 'Examples', link: '/examples/users-table' },
+			{ text: 'Upgrading from v1', link: '/upgrading-from-v1' },
 			{ text: 'Changelog', link: '/changelog' },
 		],
 		sidebar: sidebar,

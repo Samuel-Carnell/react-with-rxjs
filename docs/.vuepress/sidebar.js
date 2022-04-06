@@ -1,25 +1,27 @@
 module.exports = {
 	'/api/': [
 		{
-			title: 'Hooks',
+			title: 'API',
 			sidebarDepth: 0,
-			children: [
-				'/api/hooks/use-observable',
-				'/api/hooks/use-is-complete',
-				'/api/hooks/use-latest-value',
-				'/api/hooks/use-subscription',
-				'/api/hooks/use-state-observable',
-				'/api/hooks/use-event-observable',
-				'/api/hooks/use-context-observable',
-				'/api/hooks/use-observable-of',
-			],
+			children: ['/api/bind-hook'],
 		},
 	],
 	'/guide/': [
 		{
 			title: 'Guide',
 			sidebarDepth: 1,
-			children: ['/guide/installation', '/guide/core-concepts'],
+			children: [
+				'/guide/installation',
+				'/guide/motivation',
+				'/guide/optimized-renders',
+			],
+		},
+	],
+	'/examples/': [
+		{
+			title: 'Examples',
+			sidebarDepth: 1,
+			children: ['/examples/users-table', '/examples/product-navigation'],
 		},
 	],
 	'/': 'auto',
